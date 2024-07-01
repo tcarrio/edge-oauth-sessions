@@ -1,13 +1,15 @@
-import { RequestWithCookies } from "../requests/cookies";
+import { RequestWithCookies } from "../@types/request";
 
-export abstract class Middleware {
-	abstract shouldHandle(request: RequestWithCookies): boolean;
-	abstract handle(request: RequestWithCookies, response: Response): Promise<MiddlewareHandlerResult>;
+export abstract class Middleware implements IMiddleware {
+	abstract handle(request: RequestWithCookies): Promise<void>;
+
+	bind(): (request: RequestWithCookies) => Promise<void> {
+		return async (request: RequestWithCookies) => {
+			await this.handle(request);
+		};
+	}
 }
 
 export interface IMiddleware {
-	shouldHandle(request: RequestWithCookies): boolean;
-	handle(request: RequestWithCookies, response: Response): Promise<MiddlewareHandlerResult>;
+	handle(request: RequestWithCookies): Promise<void>;
 }
-
-export type MiddlewareHandlerResult = [RequestWithCookies, Response];
