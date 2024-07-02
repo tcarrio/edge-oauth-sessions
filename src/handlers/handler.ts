@@ -1,5 +1,7 @@
+import { IRequest } from "itty-router";
+
 export abstract class StatefulHandler implements IStatefulHandler {
-	abstract handle(request: Request): Promise<Response>;
+	abstract handle(request: IRequest): Promise<Response>;
 
 	bind(): Handler {
 		return this.handle.bind(this);
@@ -11,5 +13,5 @@ export interface IStatefulHandler {
 }
 
 export interface Handler {
-	(request: Request): Promise<Response>;
+	(request: IRequest): Promise<Response>;
 }

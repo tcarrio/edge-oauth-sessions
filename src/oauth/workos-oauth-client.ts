@@ -2,13 +2,11 @@ import { WorkOS } from '@workos-inc/node';
 import { AuthorizationURLOptions } from '@workos-inc/node/lib/user-management/interfaces/authorization-url-options.interface';
 import { AuthorizationOptions, ExchangeOptions, OAuthClient, RefreshOptions, ScreenHintType, UserAuthenticationState } from './client';
 
-export class WorkOSOAuthClient extends OAuthClient {
-	constructor(private readonly workos: WorkOS) {
-		super();
-	}
+export class WorkOSOAuthClient implements OAuthClient {
+	constructor(private readonly workOS: WorkOS) {}
 
 	async exchangeCode({ clientId, code, ...options }: ExchangeOptions): Promise<UserAuthenticationState> {
-		return this.workos.userManagement.authenticateWithCode({
+		return this.workOS.userManagement.authenticateWithCode({
 			clientId,
 			code,
 			...options,
@@ -16,14 +14,14 @@ export class WorkOSOAuthClient extends OAuthClient {
 	}
 
 	getAuthorizationUrl({ screenHint, ...options }: AuthorizationOptions): string {
-		return this.workos.userManagement.getAuthorizationUrl({
+		return this.workOS.userManagement.getAuthorizationUrl({
 			...options,
 			screenHint: this.coerceScreenHint(screenHint),
 		});
 	}
 
 	async refresh(options: RefreshOptions): Promise<UserAuthenticationState> {
-		return this.workos.userManagement.authenticateWithRefreshToken(options);
+		return this.workOS.userManagement.authenticateWithRefreshToken(options);
 	}
 
 	private coerceScreenHint(screenHint?: ScreenHintType): AuthorizationURLOptions['screenHint'] {

@@ -6,6 +6,7 @@ import { GeolocationMiddleware } from './middleware/geolocation.middleware';
 import { AuthSessionManager, AuthSessionManagerFactory } from './sessions/auth-session-manager';
 import { LogoutHandler } from './handlers/logout.handler';
 import { ProxyHandler } from './handlers/proxy.handler';
+import { LoginHandler } from './handlers/login.handler';
 
 export { DurableAuthSessionObject } from './durables/DurableAuthSessionObject';
 
@@ -36,13 +37,15 @@ let router: AutoRouterType | null = null;
 function getRouter(env: Env): AutoRouterType {
 	if (router === null) {
 		// initialize all middlewares and return singleton router as necessary
-		router = AutoRouter();
+		router = AutoRouter({
+			before: [withCookies, new GeolocationMiddleware().bind(), new BotScoringMiddleware().bind()],
+		});
 
-		router.all('*', withCookies, new GeolocationMiddleware().bind(), new BotScoringMiddleware().bind());
+		router.all('*', );
 
 		// explicit routes
 		router.get('/logout', new LogoutHandler(asmfFactory(env)).bind());
-		router.get('/login', new LoginHandler(asmfFactory(env)).bind());
+		router.get('/login', new LoginHandler().bind());
 
 		router.all('*', new AuthSessionMiddleware(asmfFactory(env)).bind(), new ProxyHandler().bind());
 	}
