@@ -14,9 +14,9 @@
             packages = with pkgs; [
                 git
                 nodejs_20
+								nodePackages.wrangler
                 yarn
                 opentofu
-								wrangler_1
             ];
 
             PROJECT_NAME = "edge-oauth-sessions";
