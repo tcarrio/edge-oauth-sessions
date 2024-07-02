@@ -1,14 +1,16 @@
+import { IRequest } from "itty-router";
 import { requestIsGeographicInformation } from "../@types/request";
 import { sanitizeHeader } from '../util/headers';
 import { Middleware } from './middleware';
 
 /**
- * Middleware that adds geographic information headers to the request.
+ * Middleware that adds geographic information headers to the request when
+ * they are detected.
  *
  * https://developers.cloudflare.com/workers/examples/geolocation-hello-world/
  */
 export class GeolocationMiddleware extends Middleware {
-	async handle(request: Request): Promise<void> {
+	async handle(request: IRequest): Promise<void> {
 		if (!requestIsGeographicInformation(request)) {
 			return;
 		}

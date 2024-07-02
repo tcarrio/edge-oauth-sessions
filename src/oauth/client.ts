@@ -1,7 +1,7 @@
-export abstract class OAuthClient {
-	abstract getAuthorizationUrl(options: AuthorizationOptions): string;
-	abstract exchangeCode(options: ExchangeOptions): Promise<UserAuthenticationState>;
-	abstract refresh(options: RefreshOptions): Promise<UserAuthenticationState>;
+export interface OAuthClient {
+	getAuthorizationUrl(options: AuthorizationOptions): string;
+	exchangeCode(options: ExchangeOptions): Promise<UserAuthenticationState>;
+	refresh(options: RefreshOptions): Promise<UserAuthenticationState>;
 }
 
 export interface AuthorizationOptions {
@@ -11,6 +11,7 @@ export interface AuthorizationOptions {
 	connection?: string;
 	state?: string;
 	responseType?: string;
+	scope?: string;
 
     codeChallenge?: string;
     codeChallengeMethod?: 'S256';

@@ -1,4 +1,4 @@
-import { RequestWithCookies } from '../@types/request';
+import { WithCookies } from '../@types/request';
 import { AuthSessionManagerFactory } from '../sessions/auth-session-manager';
 import { Middleware } from './middleware';
 
@@ -12,7 +12,7 @@ export class AuthSessionMiddleware extends Middleware {
 		super();
 	}
 
-	async handle(request: RequestWithCookies): Promise<void> {
+	async handle(request: WithCookies): Promise<void> {
 		const sessionId = request.cookies[AuthSessionMiddleware.AUTH_SESSION_KEY];
 		if (!sessionId) {
 			return;

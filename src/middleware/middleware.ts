@@ -1,15 +1,15 @@
-import { RequestWithCookies } from "../@types/request";
+import { IRequest } from "itty-router";
 
 export abstract class Middleware implements IMiddleware {
-	abstract handle(request: RequestWithCookies): Promise<void>;
+	abstract handle(request: IRequest): Promise<void>;
 
-	bind(): (request: RequestWithCookies) => Promise<void> {
-		return async (request: RequestWithCookies) => {
+	bind(): (request: IRequest) => Promise<void> {
+		return async (request: IRequest) => {
 			await this.handle(request);
 		};
 	}
 }
 
 export interface IMiddleware {
-	handle(request: RequestWithCookies): Promise<void>;
+	handle(request: IRequest): Promise<void>;
 }
