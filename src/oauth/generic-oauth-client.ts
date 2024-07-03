@@ -1,24 +1,20 @@
-import * as z from "zod";
+import * as z from 'zod';
 import { AuthorizationOptions, ExchangeOptions, RefreshOptions, UserAuthenticationState } from './client';
+import { BaseOAuthOptions } from './types';
 
 const RefreshResponseBodySchema = z.object({
 	access_token: z.string(),
 	id_token: z.string(),
 	refresh_token: z.string().optional(),
-})
+});
 
 export class GenericOAuthClient {
 	private static readonly OIDC_SCOPES = 'openid profile email';
 
-	public constructor(
-		private readonly clientId: string,
-		private readonly clientSecret: string,
-		private readonly baseOIDCUri: string,
-		private readonly redirectUri: string,
-	) {}
+	public constructor(private readonly options: GenericOAuthOptions) {}
 
 	getAuthorizationUrl({ clientId, redirectUri, screenHint, ...options }: AuthorizationOptions): string {
-		const url = new URL(`${this.baseOIDCUri}/authorization`);
+		const url = new URL(`${this.options.baseOIDCUri}/authorization`);
 
 		url.search = new URLSearchParams({
 			...options,
@@ -39,22 +35,22 @@ export class GenericOAuthClient {
 				...options,
 				grant_type: 'authorization_code',
 				code,
-				redirect_uri: options.redirectUri ?? this.redirectUri,
+				redirect_uri: options.redirectUri ?? this.options.redirectUri,
 				client_id: options.clientId ?? clientId,
 				client_secret: options.clientSecret,
-			  }),
+			}),
 		};
 
-		const res = await fetch(`${this.baseOIDCUri}/token`, requestOptions);
+		const res = await fetch(`${this.options.baseOIDCUri}/token`, requestOptions);
 		if (!res.ok) {
 			throw new Error(`Failed to refresh token: ${res.status} ${res.statusText}`);
 		}
 
 		const json = await res.json();
 
-		const {success, data} = RefreshResponseBodySchema.safeParse(json);
+		const { success, data } = RefreshResponseBodySchema.safeParse(json);
 		if (!success) {
-			throw new Error("Invalid response object");
+			throw new Error('Invalid response object');
 		}
 
 		const { id_token, access_token, refresh_token } = data;
@@ -73,13 +69,13 @@ export class GenericOAuthClient {
 			data: new URLSearchParams({
 				...options,
 				grant_type: 'refresh_token',
-				client_id: clientId ?? this.clientId,
-				client_secret: this.clientSecret,
+				client_id: clientId ?? this.options.clientId,
+				client_secret: this.options.clientSecret,
 				refresh_token: refreshToken,
 			}),
 		};
 
-		const res = await fetch(`${this.baseOIDCUri}/refresh`, requestOptions);
+		const res = await fetch(`${this.options.baseOIDCUri}/refresh`, requestOptions);
 
 		if (!res.ok) {
 			throw new Error(`Failed to refresh token: ${res.status} ${res.statusText}`);
@@ -87,13 +83,18 @@ export class GenericOAuthClient {
 
 		const json = await res.json();
 
-		const {success, data} = RefreshResponseBodySchema.safeParse(json);
+		const { success, data } = RefreshResponseBodySchema.safeParse(json);
 		if (!success) {
-			throw new Error("Invalid response object");
+			throw new Error('Invalid response object');
 		}
 
 		const { id_token, access_token, refresh_token } = data;
 
 		return { idToken: id_token, accessToken: access_token, refreshToken: refresh_token ?? refreshToken };
 	}
+}
+
+export interface GenericOAuthOptions extends BaseOAuthOptions {
+	clientSecret: string;
+	baseOIDCUri: string;
 }

@@ -4,7 +4,7 @@ export interface OAuthClient {
 	refresh(options: RefreshOptions): Promise<UserAuthenticationState>;
 }
 
-export interface AuthorizationOptions {
+export interface AuthorizationOptions extends Record<string, any> {
 	clientId: string;
 	redirectUri: string;
 
@@ -31,16 +31,16 @@ export type ScreenHintType = typeof ScreenHint[keyof typeof ScreenHint];
 
 export interface UserAuthenticationState {
 	accessToken: string;
-	idToken?: string;
-	refreshToken?: string;
-}
-
-export interface ExchangeOptions extends Record<string, string> {
-	clientId: string;
-	code: string;
-}
-
-export interface RefreshOptions extends Record<string, string> {
 	refreshToken: string;
-	clientId: string;
+	idToken?: string;
+}
+
+export interface ExchangeOptions extends Partial<Record<string, string>> {
+	code: string;
+	clientId?: string;
+}
+
+export interface RefreshOptions extends Partial<Record<string, string>> {
+	refreshToken: string;
+	clientId?: string;
 }

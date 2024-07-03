@@ -7,6 +7,7 @@ export interface Env {
 	JWKS_URI: string;
 	JWKS_CACHE_TIME_SECONDS: number;
 
+	OAUTH_STRATEGY: string; // determines which OAuthClient implementation to use
 	OAUTH_REFRESH_URI: string;
 	OAUTH_CLIENT_ID: string;
 	OAUTH_CLIENT_SECRET: string;
