@@ -1,13 +1,14 @@
 import { DurableObject } from 'cloudflare:workers';
 import { Env } from "../@types/env";
 import { JWKSet, jwksSetFactory } from '../oauth/jwks';
-import { OAuthTokenRefresher } from '../oauth/token-refresher';
 import { AuthSessionManager } from '../sessions/auth-session-manager';
-import { RawSessionCredentials, SessionCredentials } from '../sessions/session-credentials';
+import { SessionCredentials } from '../sessions/session-credentials';
+import { OAuthClientFactory } from '../oauth/factory';
+import { OAuthClient, UserAuthenticationState } from '../oauth/client';
 
 /** A Durable Object's behavior is defined in an exported Javascript class */
 export class DurableAuthSessionObject extends DurableObject<Env> implements AuthSessionManager {
-	private oauthRefresher: OAuthTokenRefresher;
+	private oauthClient: OAuthClient;
 	private ttlMs: number;
 	private jwks: JWKSet | null = null;
 
@@ -24,12 +25,12 @@ export class DurableAuthSessionObject extends DurableObject<Env> implements Auth
 		this.ttlMs = env.JWKS_CACHE_TIME_SECONDS * 1000;
 		this.jwks = jwksSetFactory(env.JWKS_URI, { cacheMaxAge: this.ttlMs });
 
-		this.oauthRefresher = new OAuthTokenRefresher(
-			env.OAUTH_CLIENT_ID,
-			env.OAUTH_CLIENT_SECRET,
-			env.OAUTH_REFRESH_URI,
-			env.OAUTH_REFRESH_MAX_RETRIES
-		);
+		this.oauthClient = OAuthClientFactory.forStrategy(env.OAUTH_STRATEGY, {
+			clientId: env.OAUTH_CLIENT_ID,
+			clientSecret: env.OAUTH_CLIENT_SECRET,
+			redirectUri: env.OAUTH_REFRESH_URI,
+			retries: env.OAUTH_REFRESH_MAX_RETRIES
+		});
 	}
 
 	/**
@@ -39,8 +40,8 @@ export class DurableAuthSessionObject extends DurableObject<Env> implements Auth
 	 * @param name - The name provided to a Durable Object instance from a Worker
 	 * @returns The greeting to be sent back to the Worker
 	 */
-	async authenticate(sessionId: string): Promise<RawSessionCredentials | undefined> {
-		const rawCredentials = await this.ctx.storage.get<RawSessionCredentials>(sessionId);
+	async authenticate(sessionId: string): Promise<UserAuthenticationState | undefined> {
+		const rawCredentials = await this.ctx.storage.get<UserAuthenticationState>(sessionId);
 
 		if (!rawCredentials) {
 			return undefined;
@@ -50,7 +51,7 @@ export class DurableAuthSessionObject extends DurableObject<Env> implements Auth
 
 		const { accessToken, refreshToken } = credentials.parsed();
 		if (typeof accessToken.payload?.exp !== 'number' || (accessToken.payload?.exp ?? 0) < Date.now()) {
-			const newRawCredentials = await this.oauthRefresher.refreshTokenWithRetries(refreshToken);
+			const newRawCredentials = await this.oauthClient.refresh({ refreshToken });
 
 			await this.ctx.storage.put(sessionId, newRawCredentials);
 

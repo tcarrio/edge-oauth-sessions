@@ -1,15 +1,12 @@
 import { decodeJwt } from "jose";
+import { UserAuthenticationState } from "../oauth/client";
 
-export interface RawSessionCredentials {
-	idToken: string;
-	accessToken: string;
-	refreshToken: string;
-}
+export type RawSessionCredentials = UserAuthenticationState;
 
 export interface ParsedSessionCredentials<AccessTokenHeader = {}, AccessTokenPayload = {}> {
-	idToken: string;
 	accessToken: JwtData<AccessTokenHeader, AccessTokenPayload>;
 	refreshToken: string;
+	idToken?: string;
 }
 
 export interface ISessionCredentials {
