@@ -9,17 +9,17 @@ const RefreshResponseBodySchema = z.object({
 	refresh_token: z.string().optional(),
 });
 
-export class GenericOAuthClient {
+export class GenericOIDCClient {
 	private static readonly OIDC_SCOPES = 'openid profile email';
 
-	public constructor(private readonly options: GenericOAuthOptions) {}
+	public constructor(private readonly options: GenericOIDCOptions) {}
 
 	getAuthorizationUrl({ clientId, redirectUri, screenHint, ...options }: AuthorizationOptions): string {
 		const url = new URL(`${this.options.baseOIDCUri}/authorization`);
 
 		url.search = new URLSearchParams({
 			...options,
-			scope: options.scope ?? GenericOAuthClient.OIDC_SCOPES, // TODO: Dynamic scopes based on the auth strategy
+			scope: options.scope ?? GenericOIDCClient.OIDC_SCOPES, // TODO: Dynamic scopes based on the auth strategy
 			response_type: 'code',
 			client_id: clientId,
 			redirect_uri: redirectUri,
@@ -101,7 +101,7 @@ export class GenericOAuthClient {
 	}
 }
 
-export interface GenericOAuthOptions extends BaseOAuthOptions {
+export interface GenericOIDCOptions extends BaseOAuthOptions {
 	clientSecret: string;
 	baseOIDCUri: string;
 }
