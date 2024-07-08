@@ -1,8 +1,7 @@
 import { AuthenticationClient } from 'auth0';
-import { AuthorizationOptions, ExchangeOptions, OAuthClient, RefreshOptions, ScreenHintType, UserAuthenticationState } from './client';
-import { BaseOAuthOptions } from './types';
-import { z } from 'zod';
+import { AuthorizationOptions, ExchangeOptions, OAuthClient, RefreshOptions, ScreenHintType } from './client';
 import { OauthCodeExchangeResponseSchema } from './code-exchange';
+import { BaseOAuthOptions, UserAuthenticationState } from './types';
 
 export class Auth0OAuthClient implements OAuthClient {
 	private static readonly OIDC_SCOPES = 'openid profile email';
