@@ -8,6 +8,29 @@ As an initial target, this is using SDKs for Auth0 and WorkOS to prove out the c
 
 This project shifts the _authentication_ component of your web applications, whether they are single-page applications or traditional web servers, out to the edge.
 
+The project follows the spirit of [the Token Handler pattern](https://bff-patterns.com/patterns/api-token-handler), which centers around housing the auth mechanism inside of your API Gateway.
+
+## Status
+
+This project is definitely a work in-progress. It builds on experience running Cloudflare Workers in front of all production traffic and incorporates technology specific to Cloudflare. The following list covers the general state of the software:
+
+| Status | Feature                        | Description                                                                         |
+| ------ | ------------------------------ | ----------------------------------------------------------------------------------- |
+| ✅     | Gateway / Proxy                | The capability to pass downstream traffic                                           |
+| ⚠️     | OAuth Session Management(OASM) | Managing OAuth token, refreshing, and injecting state                               |
+| ⚠️     | Durable Object Session State   | Managing Session State backed by Durable Object's persistent, transactional storage |
+| 🤔     | Workers KV Session State       | Managing Session State backed by eventually-consistent global KV storage            |
+| 🤔     | PostgreSQL Session State       | Managing Session State backed by transaction PostgreSQL storage                     |
+| ⚠️     | Auth0 Provider                 | Session Management backed by Auth0                                                  |
+| ⚠️     | WorkOS Provider                | Session Management backed by WorkOS                                                 |
+| ⚠️     | OpenID Connect Provider        | Session Management backed by generic OpenID Connect providers                       |
+| ⚠️     | Login / Logout Routes          | Routes for orchestrating login and logout with OIDC providers                       |
+| ✅     | Geolocation                    | The ability to detect geolocation headers and proxy them                            |
+| ✅     | Bot scores                     | The ability to detect bot score headers and proxy them                              |
+| ✅     | Captcha                        | The ability to detect captcha headers and enforce it                                |
+| ⚠️     | CSRF Protection                | Protected against cross-site request forgery attacks                                |
+| 🤔     | JWKS Validation                | Validation of JWTs against a JSON Web Key Set (local or remote)                     |
+
 ## Architecture
 
 ![./docs/high-level-architecture.png](./docs/high-level-architecture.png)
