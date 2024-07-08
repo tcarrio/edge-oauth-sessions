@@ -17,18 +17,18 @@ This project is definitely a work in-progress. It builds on experience running C
 | Status | Feature                        | Description                                                                         |
 | ------ | ------------------------------ | ----------------------------------------------------------------------------------- |
 | ✅     | Gateway / Proxy                | The capability to pass downstream traffic                                           |
-| ⚠️     | OAuth Session Management(OASM) | Managing OAuth token, refreshing, and injecting state                               |
-| ⚠️     | Durable Object Session State   | Managing Session State backed by Durable Object's persistent, transactional storage |
-| 🤔     | Workers KV Session State       | Managing Session State backed by eventually-consistent global KV storage            |
-| 🤔     | PostgreSQL Session State       | Managing Session State backed by transaction PostgreSQL storage                     |
-| ⚠️     | Auth0 Provider                 | Session Management backed by Auth0                                                  |
-| ⚠️     | WorkOS Provider                | Session Management backed by WorkOS                                                 |
-| ⚠️     | OpenID Connect Provider        | Session Management backed by generic OpenID Connect providers                       |
-| ⚠️     | Login / Logout Routes          | Routes for orchestrating login and logout with OIDC providers                       |
+| 🚧     | OAuth Session Management(OASM) | Managing OAuth token, refreshing, and injecting state                               |
+| 🚧     | Durable Object Session State   | Managing Session State backed by Durable Object's persistent, transactional storage |
+| 🚧     | Workers KV Session State       | Managing Session State backed by eventually-consistent global KV storage            |
+| 🚧     | NeonDB Session State           | Managing Session State backed by transactional, serverless PostgreSQL storage       |
+| 🚧     | Auth0 Provider                 | Session Management backed by Auth0                                                  |
+| 🚧     | WorkOS Provider                | Session Management backed by WorkOS                                                 |
+| 🚧     | OpenID Connect Provider        | Session Management backed by generic OpenID Connect providers                       |
+| 🚧     | Login / Logout Routes          | Routes for orchestrating login and logout with OIDC providers                       |
 | ✅     | Geolocation                    | The ability to detect geolocation headers and proxy them                            |
 | ✅     | Bot scores                     | The ability to detect bot score headers and proxy them                              |
 | ✅     | Captcha                        | The ability to detect captcha headers and enforce it                                |
-| ⚠️     | CSRF Protection                | Protected against cross-site request forgery attacks                                |
+| 🚧     | CSRF Protection                | Protected against cross-site request forgery attacks                                |
 | 🤔     | JWKS Validation                | Validation of JWTs against a JSON Web Key Set (local or remote)                     |
 
 ## Architecture
