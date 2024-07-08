@@ -1,5 +1,5 @@
 import { decodeJwt } from "jose";
-import { UserAuthenticationState } from "../oauth/client";
+import { UserAuthenticationState } from "../oauth/types";
 
 export type RawSessionCredentials = UserAuthenticationState;
 

@@ -1,7 +1,7 @@
 import * as z from 'zod';
-import { AuthorizationOptions, ExchangeOptions, RefreshOptions, UserAuthenticationState } from './client';
-import { BaseOAuthOptions } from './types';
+import { AuthorizationOptions, ExchangeOptions, RefreshOptions } from './client';
 import { OauthCodeExchangeResponseSchema } from './code-exchange';
+import { BaseOAuthOptions, UserAuthenticationState } from './types';
 
 const RefreshResponseBodySchema = z.object({
 	access_token: z.string(),
