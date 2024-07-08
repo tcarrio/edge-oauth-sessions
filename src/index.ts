@@ -7,6 +7,8 @@ import { AuthSessionManager, AuthSessionManagerFactory } from './sessions/auth-s
 import { LogoutHandler } from './handlers/logout.handler';
 import { ProxyHandler } from './handlers/proxy.handler';
 import { LoginHandler } from './handlers/login.handler';
+import { getConfigFromEnv } from './oauth/config';
+import { OAuthClientFactory } from './oauth/factory';
 
 export { DurableAuthSessionObject } from './durables/DurableAuthSessionObject';
 
@@ -23,7 +25,7 @@ export { DurableAuthSessionObject } from './durables/DurableAuthSessionObject';
  * Learn more at https://developers.cloudflare.com/durable-objects
  */
 
-function asmfFactory(env: Env): AuthSessionManagerFactory {
+function authSessionManagerFactoryForEnv(env: Env): AuthSessionManagerFactory {
 	return {
 		forId: (id: string) => {
 			const durableObjectId = env.DURABLE_AUTH_SESSION_OBJECT.idFromName(id);
@@ -36,6 +38,8 @@ function asmfFactory(env: Env): AuthSessionManagerFactory {
 let router: AutoRouterType | null = null;
 function getRouter(env: Env): AutoRouterType {
 	if (router === null) {
+		const asmf = authSessionManagerFactoryForEnv(env);
+
 		// initialize all middlewares and return singleton router as necessary
 		router = AutoRouter({
 			before: [withCookies, new GeolocationMiddleware().bind(), new BotScoringMiddleware().bind()],
@@ -44,10 +48,10 @@ function getRouter(env: Env): AutoRouterType {
 		router.all('*', );
 
 		// explicit routes
-		router.get('/logout', new LogoutHandler(asmfFactory(env)).bind());
-		router.get('/login', new LoginHandler().bind());
+		router.get('/logout', new LogoutHandler(asmf).bind());
+		router.get('/login', new LoginHandler(getConfigFromEnv(env), OAuthClientFactory.forEnv(env)).bind());
 
-		router.all('*', new AuthSessionMiddleware(asmfFactory(env)).bind(), new ProxyHandler().bind());
+		router.all('*', new AuthSessionMiddleware(asmf).bind(), new ProxyHandler().bind());
 	}
 
 	return router;

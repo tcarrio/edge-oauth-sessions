@@ -1,3 +1,5 @@
+import { UserAuthenticationState } from "./types";
+
 export interface OAuthClient {
 	getAuthorizationUrl(options: AuthorizationOptions): string;
 	exchangeCode(options: ExchangeOptions): Promise<UserAuthenticationState>;
@@ -28,12 +30,6 @@ export const ScreenHint = {
 } as const;
 
 export type ScreenHintType = typeof ScreenHint[keyof typeof ScreenHint];
-
-export interface UserAuthenticationState {
-	accessToken: string;
-	refreshToken: string;
-	idToken?: string;
-}
 
 export interface ExchangeOptions extends Partial<Record<string, string>> {
 	code: string;

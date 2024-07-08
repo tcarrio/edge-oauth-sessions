@@ -4,17 +4,26 @@ import { DurableAuthSessionObject } from "../durables/DurableAuthSessionObject";
  * Associate bindings declared in wrangler.toml with the TypeScript type system
  */
 export interface Env {
+	// JWKS validation
 	JWKS_URI: string;
 	JWKS_CACHE_TIME_SECONDS: number;
 
+	// OAuth config
 	OAUTH_STRATEGY: string; // determines which OAuthClient implementation to use
 	OAUTH_REFRESH_URI: string;
 	OAUTH_CLIENT_ID: string;
 	OAUTH_CLIENT_SECRET: string;
 	OAUTH_REFRESH_MAX_RETRIES: number;
 
+	// Neon provider
+	NEON_DATABASE_URI: string;
+	NEON_DATABASE_SESSIONS_TABLE: string;
+
+	// KV provider
+	KV_KEY_PREFIX: string;
+
 	// Example binding to KV. Learn more at https://developers.cloudflare.com/workers/runtime-apis/kv/
-	// MY_KV_NAMESPACE: KVNamespace;
+	KV_AUTH_SESSION: KVNamespace;
 	//
 	// Example binding to Durable Object. Learn more at https://developers.cloudflare.com/workers/runtime-apis/durable-objects/
 	DURABLE_AUTH_SESSION_OBJECT: DurableObjectNamespace<DurableAuthSessionObject>;
