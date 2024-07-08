@@ -3,7 +3,7 @@ import { Auth0OAuthClient, Auth0OAuthOptions } from "./auth0-oauth-client";
 import { OAuthClient } from "./client";
 import { WorkOSOAuthClient, WorkOSOAuthOptions } from "./workos-oauth-client";
 import { WorkOS } from "@workos-inc/node";
-import { GenericOAuthClient, GenericOAuthOptions } from "./generic-oauth-client";
+import { GenericOIDCClient, GenericOIDCOptions } from "./generic-oidc-client";
 
 const Strategy = {
 	Auth0: 'auth0',
@@ -25,7 +25,7 @@ export class OAuthClientFactory {
 
 			case Strategy.Generic:
 			default:
-				return new GenericOAuthClient(options as GenericOAuthOptions);
+				return new GenericOIDCClient(options as GenericOIDCOptions);
 		}
 	}
 }
