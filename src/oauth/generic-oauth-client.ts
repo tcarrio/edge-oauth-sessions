@@ -1,6 +1,7 @@
 import * as z from 'zod';
 import { AuthorizationOptions, ExchangeOptions, RefreshOptions, UserAuthenticationState } from './client';
 import { BaseOAuthOptions } from './types';
+import { OauthCodeExchangeResponseSchema } from './code-exchange';
 
 const RefreshResponseBodySchema = z.object({
 	access_token: z.string(),
@@ -27,7 +28,13 @@ export class GenericOAuthClient {
 		return url.toString();
 	}
 
-	async exchangeCode({ code, clientId, ...options }: ExchangeOptions): Promise<UserAuthenticationState> {
+	async exchangeCode({
+		code,
+		clientId = this.options.clientId,
+		clientSecret = this.options.clientSecret,
+		redirectUri = this.options.redirectUri,
+		...options
+	}: ExchangeOptions): Promise<UserAuthenticationState> {
 		const requestOptions = {
 			method: 'POST',
 			headers: { 'content-type': 'application/x-www-form-urlencoded' },
@@ -35,9 +42,9 @@ export class GenericOAuthClient {
 				...options,
 				grant_type: 'authorization_code',
 				code,
-				redirect_uri: options.redirectUri ?? this.options.redirectUri,
-				client_id: options.clientId ?? clientId,
-				client_secret: options.clientSecret,
+				redirect_uri: redirectUri,
+				client_id: clientId,
+				client_secret: clientSecret,
 			}),
 		};
 
@@ -53,7 +60,7 @@ export class GenericOAuthClient {
 			throw new Error('Invalid response object');
 		}
 
-		const { id_token, access_token, refresh_token } = data;
+		const { id_token, access_token, refresh_token } = OauthCodeExchangeResponseSchema.parse(data);
 
 		return {
 			accessToken: access_token,
