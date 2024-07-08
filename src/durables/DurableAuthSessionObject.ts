@@ -4,13 +4,17 @@ import { JWKSet, jwksSetFactory } from '../oauth/jwks';
 import { AuthSessionManager } from '../sessions/auth-session-manager';
 import { SessionCredentials } from '../sessions/session-credentials';
 import { OAuthClientFactory } from '../oauth/factory';
-import { OAuthClient, UserAuthenticationState } from '../oauth/client';
+import { OAuthClient } from '../oauth/client';
+import { UserAuthenticationState } from "../oauth/types";
+import { DurableObjectStateSessionRepository } from '../persistence/durable-objects/session-repository';
+import { SessionRepository } from '../sessions/session-repository';
 
 /** A Durable Object's behavior is defined in an exported Javascript class */
 export class DurableAuthSessionObject extends DurableObject<Env> implements AuthSessionManager {
-	private oauthClient: OAuthClient;
-	private ttlMs: number;
-	private jwks: JWKSet | null = null;
+	private readonly oauthClient: OAuthClient;
+	private readonly ttlMs: number;
+	private readonly jwks: JWKSet | null = null;
+	private readonly sessionRepository: SessionRepository;
 
 	/**
 	 * The constructor is invoked once upon creation of the Durable Object, i.e. the first call to
@@ -25,12 +29,8 @@ export class DurableAuthSessionObject extends DurableObject<Env> implements Auth
 		this.ttlMs = env.JWKS_CACHE_TIME_SECONDS * 1000;
 		this.jwks = jwksSetFactory(env.JWKS_URI, { cacheMaxAge: this.ttlMs });
 
-		this.oauthClient = OAuthClientFactory.forStrategy(env.OAUTH_STRATEGY, {
-			clientId: env.OAUTH_CLIENT_ID,
-			clientSecret: env.OAUTH_CLIENT_SECRET,
-			redirectUri: env.OAUTH_REFRESH_URI,
-			retries: env.OAUTH_REFRESH_MAX_RETRIES
-		});
+		this.oauthClient = OAuthClientFactory.forEnv(env);
+		this.sessionRepository = new DurableObjectStateSessionRepository(ctx);
 	}
 
 	/**
@@ -41,7 +41,7 @@ export class DurableAuthSessionObject extends DurableObject<Env> implements Auth
 	 * @returns The greeting to be sent back to the Worker
 	 */
 	async authenticate(sessionId: string): Promise<UserAuthenticationState | undefined> {
-		const rawCredentials = await this.ctx.storage.get<UserAuthenticationState>(sessionId);
+		const rawCredentials = this.sessionRepository.findById(sessionId);
 
 		if (!rawCredentials) {
 			return undefined;
@@ -53,7 +53,7 @@ export class DurableAuthSessionObject extends DurableObject<Env> implements Auth
 		if (typeof accessToken.payload?.exp !== 'number' || (accessToken.payload?.exp ?? 0) < Date.now()) {
 			const newRawCredentials = await this.oauthClient.refresh({ refreshToken });
 
-			await this.ctx.storage.put(sessionId, newRawCredentials);
+			await this.sessionRepository.upsert(sessionId, newRawCredentials);
 
 			return newRawCredentials;
 		}
@@ -62,6 +62,6 @@ export class DurableAuthSessionObject extends DurableObject<Env> implements Auth
 	}
 
 	async logout(sessionId: string): Promise<void> {
-		this.ctx.storage.delete(sessionId);
+		this.sessionRepository.delete(sessionId);
 	}
 }

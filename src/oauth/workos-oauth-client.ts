@@ -1,7 +1,7 @@
 import { WorkOS } from '@workos-inc/node';
 import { AuthorizationURLOptions } from '@workos-inc/node/lib/user-management/interfaces/authorization-url-options.interface';
-import { AuthorizationOptions, ExchangeOptions, OAuthClient, RefreshOptions, ScreenHintType, UserAuthenticationState } from './client';
-import { BaseOAuthOptions } from './types';
+import { AuthorizationOptions, ExchangeOptions, OAuthClient, RefreshOptions, ScreenHintType } from './client';
+import { BaseOAuthOptions, UserAuthenticationState } from './types';
 
 export class WorkOSOAuthClient implements OAuthClient {
 	constructor(private readonly workOS: WorkOS, private readonly options: WorkOSOAuthOptions) {}
