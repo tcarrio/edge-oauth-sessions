@@ -1,6 +1,5 @@
 import { WithCookies } from "../@types/request";
 import { Gate } from "./gate";
-import { challengeWithCaptcha, hasPassedCaptcha } from "../util/captcha";
 import { withCookies } from "itty-router";
 
 /**
@@ -16,4 +15,22 @@ export class CaptchaGate extends Gate {
 
 		return challengeWithCaptcha();
 	}
+}
+
+const CHALLENGE_HEADER = 'cf-challenge';
+const CHALLENGE_VALUE = 'captcha';
+
+export function challengeWithCaptcha(): Response {
+	return new Response(null, {
+		status: 403,
+		headers: {
+			[CHALLENGE_HEADER]: CHALLENGE_VALUE,
+		},
+	});
+}
+
+const CAPTCHA_CLEARANCE = 'cf_clearance';
+
+export function hasPassedCaptcha({ cookies }: WithCookies): boolean {
+	return Boolean(cookies[CAPTCHA_CLEARANCE]);
 }

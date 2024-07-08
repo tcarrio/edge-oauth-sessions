@@ -3,6 +3,7 @@ import { StatefulHandler } from './handler';
 import { OAuthClient } from '../oauth/client';
 import { OAuthConfig } from '../oauth/config';
 import { UuidFactory } from '../util/uuid';
+import { HttpStatusCodes } from '../@types/http';
 
 /**
  * Handles logout actions by deleting the session from storage.
@@ -24,6 +25,6 @@ export class LoginHandler extends StatefulHandler {
 
 		const authorizationUrl = this.oauthClient.getAuthorizationUrl({ targetUrl, clientId, redirectUri });
 
-		return new Response(null, { headers: { } , status: 301 });
+		return new Response(null, { headers: { Location: authorizationUrl } , status: HttpStatusCodes.MOVED_PERMANENTLY });
 	}
 }

@@ -6,7 +6,8 @@ import { Middleware } from './middleware';
  * Middleware that attaches the Authorization header to the request if the user is authenticated.
  */
 export class AuthSessionMiddleware extends Middleware {
-	static readonly AUTH_SESSION_KEY = 'auth-session-id';
+	private static readonly AUTHORIZATION_HEADER = 'Authorization';
+	private static readonly AUTH_SESSION_KEY = 'auth-session-id';
 
 	public constructor(private readonly authSessionManagerFactory: AuthSessionManagerFactory) {
 		super();
@@ -30,7 +31,7 @@ export class AuthSessionMiddleware extends Middleware {
 			return;
 		}
 
-		request.headers.set('Authorization', `Bearer ${accessToken}`);
+		request.headers.set(AuthSessionMiddleware.AUTHORIZATION_HEADER, `Bearer ${accessToken}`);
 
 		return;
 	}

@@ -1,6 +1,4 @@
 import { IRequest } from "itty-router";
-import { Handler } from "../handlers/handler";
-import { Middleware } from "../middleware/middleware";
 
 export abstract class Gate implements IGate {
 	abstract handle(request: IRequest): any;

@@ -6,7 +6,7 @@ import { BaseOAuthOptions } from './types';
 export class WorkOSOAuthClient implements OAuthClient {
 	constructor(private readonly workOS: WorkOS, private readonly options: WorkOSOAuthOptions) {}
 
-	async exchangeCode({ clientId, code, ...options }: ExchangeOptions): Promise<UserAuthenticationState> {
+	async exchangeCode({ clientId = this.options.clientId, code, ...options }: ExchangeOptions): Promise<UserAuthenticationState> {
 		return this.workOS.userManagement.authenticateWithCode({
 			clientId,
 			code,
@@ -21,8 +21,11 @@ export class WorkOSOAuthClient implements OAuthClient {
 		});
 	}
 
-	async refresh(options: RefreshOptions): Promise<UserAuthenticationState> {
-		return this.workOS.userManagement.authenticateWithRefreshToken(options);
+	async refresh({ clientId = this.options.clientId, ...options }: RefreshOptions): Promise<UserAuthenticationState> {
+		return this.workOS.userManagement.authenticateWithRefreshToken({
+			...options,
+			clientId,
+		});
 	}
 
 	private coerceScreenHint(screenHint?: ScreenHintType): AuthorizationURLOptions['screenHint'] {
