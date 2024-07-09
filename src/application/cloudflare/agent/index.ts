@@ -1,20 +1,19 @@
-import { AutoRouter, AutoRouterType, withCookies } from 'itty-router';
-import { Env } from '@eos/infrastructure/cloudflare/@types/env';
+import { CallbackHandler } from '@eos/application/handlers/callback.handler';
+import { LoginHandler } from '@eos/application/handlers/login.handler';
+import { LogoutHandler } from '@eos/application/handlers/logout.handler';
+import { ProxyHandler } from '@eos/application/handlers/proxy.handler';
 import { AuthSessionMiddleware } from '@eos/application/middleware/auth-session.middleware';
 import { BotScoringMiddleware } from '@eos/application/middleware/cloudflare/bot-scoring.middleware';
 import { GeolocationMiddleware } from '@eos/application/middleware/cloudflare/geolocation.middleware';
-import { AuthSessionManager, AuthSessionManagerFactory } from '@eos/domain/sessions/auth-session-manager';
-import { LogoutHandler } from '@eos/application/handlers/logout.handler';
-import { ProxyHandler } from '@eos/application/handlers/proxy.handler';
-import { LoginHandler } from '@eos/application/handlers/login.handler';
+import { merge } from '@eos/domain/functional/array';
+import { memoize } from '@eos/domain/functional/memoize';
+import { Env } from '@eos/infrastructure/cloudflare/@types/env';
+import { AuthSessionManagerFactoryFactory } from '@eos/infrastructure/cloudflare/factories/auth-session-manager';
+import { CloudflareConfigFactory } from '@eos/infrastructure/cloudflare/factories/config';
+import { RouterConfigFactory } from '@eos/infrastructure/cloudflare/factories/router-config';
 import { OpenIDConnectConfigFactory } from '@eos/infrastructure/open-id-connect/config';
 import { OpenIDConnectClientFactory } from '@eos/infrastructure/open-id-connect/factory';
-import { RouterConfigFactory } from './infrastructure/cloudflare/factories/router-config';
-import { AuthSessionManagerFactoryFactory } from './infrastructure/cloudflare/factories/auth-session-manager';
-import { CloudflareConfigFactory } from './infrastructure/cloudflare/factories/config';
-import { merge } from './domain/functional/array';
-import { CallbackHandler } from './application/handlers/callback.handler';
-import { memoize } from './domain/functional/memoize';
+import { AutoRouter, AutoRouterType, withCookies } from 'itty-router';
 
 export { DurableAuthSessionObject } from '@eos/infrastructure/cloudflare/durables/DurableAuthSessionObject';
 
