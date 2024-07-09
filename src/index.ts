@@ -14,6 +14,7 @@ import { AuthSessionManagerFactoryFactory } from './infrastructure/cloudflare/fa
 import { CloudflareConfigFactory } from './infrastructure/cloudflare/factories/config';
 import { merge } from './domain/functional/array';
 import { CallbackHandler } from './application/handlers/callback.handler';
+import { memoize } from './domain/functional/memoize';
 
 export { DurableAuthSessionObject } from '@eos/infrastructure/cloudflare/durables/DurableAuthSessionObject';
 
@@ -30,35 +31,32 @@ export { DurableAuthSessionObject } from '@eos/infrastructure/cloudflare/durable
  * Learn more at https://developers.cloudflare.com/durable-objects
  */
 
-let router: AutoRouterType | null = null;
-function getRouter(env: Env): AutoRouterType {
-	if (router === null) {
-		const authSessionManagerFactory = AuthSessionManagerFactoryFactory.forEnv(env);
-		const routerConfig = RouterConfigFactory.forEnv(env);
-		const oidcConfig = OpenIDConnectConfigFactory.forEnv(env);
-		const oidcClient = OpenIDConnectClientFactory.forEnv(env);
-		const featureConfig = CloudflareConfigFactory.forEnv(env);
+const getRouter = memoize((env: Env): AutoRouterType => {
+	const authSessionManagerFactory = AuthSessionManagerFactoryFactory.forEnv(env);
+	const routerConfig = RouterConfigFactory.forEnv(env);
+	const oidcConfig = OpenIDConnectConfigFactory.forEnv(env);
+	const oidcClient = OpenIDConnectClientFactory.forEnv(env);
+	const featureConfig = CloudflareConfigFactory.forEnv(env);
 
-		// initialize all middlewares and return singleton router as necessary
-		router = AutoRouter({
-			before: merge(
-				[withCookies],
-				featureConfig.geolocationEnabled ? [new GeolocationMiddleware().bind()] : [],
-				featureConfig.botScoringEnabled ? [new BotScoringMiddleware().bind()] : []
-			),
-		});
+	// initialize all middlewares and return singleton router as necessary
+	const router = AutoRouter({
+		before: merge(
+			[withCookies],
+			featureConfig.geolocationEnabled ? [new GeolocationMiddleware().bind()] : [],
+			featureConfig.botScoringEnabled ? [new BotScoringMiddleware().bind()] : []
+		),
+	});
 
-		// authentication application routes
-		router.get(routerConfig.logoutPath, new LogoutHandler(authSessionManagerFactory, routerConfig).bind());
-		router.get(routerConfig.loginPath, new LoginHandler(oidcConfig, oidcClient).bind());
-		router.get(routerConfig.callbackPath, new CallbackHandler(oidcConfig, oidcClient).bind());
+	// authentication application routes
+	router.get(routerConfig.logoutPath, new LogoutHandler(authSessionManagerFactory, routerConfig).bind());
+	router.get(routerConfig.loginPath, new LoginHandler(oidcConfig, oidcClient).bind());
+	router.get(routerConfig.callbackPath, new CallbackHandler(oidcConfig, oidcClient).bind());
 
-		// proxy all remaining routes with Token Handler support
-		router.all('*', new AuthSessionMiddleware(authSessionManagerFactory).bind(), new ProxyHandler().bind());
-	}
+	// proxy all remaining routes with Token Handler support
+	router.all('*', new AuthSessionMiddleware(authSessionManagerFactory).bind(), new ProxyHandler().bind());
 
 	return router;
-}
+});
 
 export default {
 	/**
