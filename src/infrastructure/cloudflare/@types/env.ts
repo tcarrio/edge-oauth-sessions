@@ -17,7 +17,7 @@ export interface Env {
 	// OAuth config
 	OAUTH_STRATEGY: string; // determines which OAuthClient implementation to use
 	OAUTH_REFRESH_URI: string;
-	OAUTH_REDIRECT_URI: string;
+	OAUTH_REDIRECT_URI: string; // similar to ROUTER_CALLBACK_PATH, but full URL
 	OAUTH_CLIENT_ID: string;
 	OAUTH_CLIENT_SECRET: string;
 	OAUTH_REFRESH_MAX_RETRIES: number;

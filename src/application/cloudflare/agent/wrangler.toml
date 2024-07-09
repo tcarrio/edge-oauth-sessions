@@ -1,6 +1,6 @@
 #:schema node_modules/wrangler/config-schema.json
 name = "auth0-cf-workers"
-main = "src/index.ts"
+main = "./index.ts"
 compatibility_date = "2024-06-20"
 
 # Automatically place your workloads in an optimal location to minimize latency.
@@ -16,8 +16,32 @@ compatibility_date = "2024-06-20"
 # Note: Use secrets to store sensitive data.
 # - https://developers.cloudflare.com/workers/configuration/secrets/
 [vars]
-JWKS_URI = "production_value"
-JWKS_CACHE_TIME_SECONDS = 600
+### Router config
+ROUTER_COOKIE_KEY = "auth-session-id"
+ROUTER_CALLBACK_PATH = "/auth/callback"
+ROUTER_LOGIN_PATH = "/auth/login"
+ROUTER_LOGOUT_PATH = "/auth/logout"
+
+### JWKS validation
+JWKS_VALIDATION = false
+JWKS_URI = "https://your-tenant.auth0.com/.well-known/jwks.json"
+JWKS_CACHE_TIME_SECONDS = 600 # seconds
+
+### OAuth config
+OAUTH_STRATEGY = "auth0" # https://github.com/tcarrio/edge-oauth-sessions/blob/a2287bc5b58af1e4efd9fdadbdbc97209a3f9eef/src/infrastructure/open-id-connect/factory.ts#L9-L13
+# OAUTH_REFRESH_URI = ""
+OAUTH_REDIRECT_URI = "https://your-app.example.test/auth/callback"
+OAUTH_CLIENT_ID = ""
+OAUTH_CLIENT_SECRET = ""
+# OAUTH_REFRESH_MAX_RETRIES = 5
+
+### Neon provider
+# NEON_DATABASE_URI: string;
+# NEON_DATABASE_SESSIONS_TABLE: string;
+
+### KV provider
+# KV_KEY_PREFIX: string;
+
 
 # Bind the Workers AI model catalog. Run machine learning models, powered by serverless GPUs, on Cloudflare’s global network
 # Docs: https://developers.cloudflare.com/workers/wrangler/configuration/#workers-ai
