@@ -1,0 +1,39 @@
+import { WorkOS } from '@workos-inc/node';
+import { AuthorizationURLOptions } from '@workos-inc/node/lib/user-management/interfaces/authorization-url-options.interface';
+import { AuthorizationOptions, ExchangeOptions, OpenIDConnectClient, RefreshOptions, ScreenHintType } from '@eos/domain/open-id-connect/client';
+import { BaseOAuthOptions } from '@eos/domain/open-id-connect/types';
+import { SessionState } from '@eos/domain/sessions/session-state';
+
+export class WorkOSOAuthClient implements OpenIDConnectClient {
+	constructor(private readonly workOS: WorkOS, private readonly options: WorkOSOAuthOptions) {}
+
+	async exchangeCode({ clientId = this.options.clientId, code, ...options }: ExchangeOptions): Promise<SessionState> {
+		return this.workOS.userManagement.authenticateWithCode({
+			clientId,
+			code,
+			...options,
+		});
+	}
+
+	getAuthorizationUrl({ screenHint, ...options }: AuthorizationOptions): string {
+		return this.workOS.userManagement.getAuthorizationUrl({
+			...options,
+			screenHint: this.coerceScreenHint(screenHint),
+		});
+	}
+
+	async refresh({ clientId = this.options.clientId, ...options }: RefreshOptions): Promise<SessionState> {
+		return this.workOS.userManagement.authenticateWithRefreshToken({
+			...options,
+			clientId,
+		});
+	}
+
+	private coerceScreenHint(screenHint?: ScreenHintType): AuthorizationURLOptions['screenHint'] {
+		return screenHint ? (screenHint === 'SignUp' ? 'sign-up' : 'sign-in') : undefined;
+	}
+}
+
+export interface WorkOSOAuthOptions extends BaseOAuthOptions {
+	apiKey: string;
+}

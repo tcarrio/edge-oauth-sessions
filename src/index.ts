@@ -1,16 +1,21 @@
 import { AutoRouter, AutoRouterType, withCookies } from 'itty-router';
-import { Env } from './@types/env';
-import { AuthSessionMiddleware } from './middleware/auth-session.middleware';
-import { BotScoringMiddleware } from './middleware/bot-scoring.middleware';
-import { GeolocationMiddleware } from './middleware/geolocation.middleware';
-import { AuthSessionManager, AuthSessionManagerFactory } from './sessions/auth-session-manager';
-import { LogoutHandler } from './handlers/logout.handler';
-import { ProxyHandler } from './handlers/proxy.handler';
-import { LoginHandler } from './handlers/login.handler';
-import { getConfigFromEnv } from './oauth/config';
-import { OAuthClientFactory } from './oauth/factory';
+import { Env } from '@eos/infrastructure/cloudflare/@types/env';
+import { AuthSessionMiddleware } from '@eos/application/middleware/auth-session.middleware';
+import { BotScoringMiddleware } from '@eos/application/middleware/cloudflare/bot-scoring.middleware';
+import { GeolocationMiddleware } from '@eos/application/middleware/cloudflare/geolocation.middleware';
+import { AuthSessionManager, AuthSessionManagerFactory } from '@eos/domain/sessions/auth-session-manager';
+import { LogoutHandler } from '@eos/application/handlers/logout.handler';
+import { ProxyHandler } from '@eos/application/handlers/proxy.handler';
+import { LoginHandler } from '@eos/application/handlers/login.handler';
+import { OpenIDConnectConfigFactory } from '@eos/infrastructure/open-id-connect/config';
+import { OpenIDConnectClientFactory } from '@eos/infrastructure/open-id-connect/factory';
+import { RouterConfigFactory } from './infrastructure/cloudflare/factories/router-config';
+import { AuthSessionManagerFactoryFactory } from './infrastructure/cloudflare/factories/auth-session-manager';
+import { CloudflareConfigFactory } from './infrastructure/cloudflare/factories/config';
+import { merge } from './domain/functional/array';
+import { CallbackHandler } from './application/handlers/callback.handler';
 
-export { DurableAuthSessionObject } from './durables/DurableAuthSessionObject';
+export { DurableAuthSessionObject } from '@eos/infrastructure/cloudflare/durables/DurableAuthSessionObject';
 
 /**
  * Welcome to Cloudflare Workers! This is your first Durable Objects application.
@@ -25,33 +30,31 @@ export { DurableAuthSessionObject } from './durables/DurableAuthSessionObject';
  * Learn more at https://developers.cloudflare.com/durable-objects
  */
 
-function authSessionManagerFactoryForEnv(env: Env): AuthSessionManagerFactory {
-	return {
-		forId: (id: string) => {
-			const durableObjectId = env.DURABLE_AUTH_SESSION_OBJECT.idFromName(id);
-
-			return env.DURABLE_AUTH_SESSION_OBJECT.get(durableObjectId) as any as AuthSessionManager;
-		},
-	};
-}
-
 let router: AutoRouterType | null = null;
 function getRouter(env: Env): AutoRouterType {
 	if (router === null) {
-		const asmf = authSessionManagerFactoryForEnv(env);
+		const authSessionManagerFactory = AuthSessionManagerFactoryFactory.forEnv(env);
+		const routerConfig = RouterConfigFactory.forEnv(env);
+		const oidcConfig = OpenIDConnectConfigFactory.forEnv(env);
+		const oidcClient = OpenIDConnectClientFactory.forEnv(env);
+		const featureConfig = CloudflareConfigFactory.forEnv(env);
 
 		// initialize all middlewares and return singleton router as necessary
 		router = AutoRouter({
-			before: [withCookies, new GeolocationMiddleware().bind(), new BotScoringMiddleware().bind()],
+			before: merge(
+				[withCookies],
+				featureConfig.geolocationEnabled ? [new GeolocationMiddleware().bind()] : [],
+				featureConfig.botScoringEnabled ? [new BotScoringMiddleware().bind()] : []
+			),
 		});
 
-		router.all('*', );
+		// authentication application routes
+		router.get(routerConfig.logoutPath, new LogoutHandler(authSessionManagerFactory, routerConfig).bind());
+		router.get(routerConfig.loginPath, new LoginHandler(oidcConfig, oidcClient).bind());
+		router.get(routerConfig.callbackPath, new CallbackHandler(oidcConfig, oidcClient).bind());
 
-		// explicit routes
-		router.get('/logout', new LogoutHandler(asmf).bind());
-		router.get('/login', new LoginHandler(getConfigFromEnv(env), OAuthClientFactory.forEnv(env)).bind());
-
-		router.all('*', new AuthSessionMiddleware(asmf).bind(), new ProxyHandler().bind());
+		// proxy all remaining routes with Token Handler support
+		router.all('*', new AuthSessionMiddleware(authSessionManagerFactory).bind(), new ProxyHandler().bind());
 	}
 
 	return router;

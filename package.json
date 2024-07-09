@@ -14,11 +14,13 @@
     "wrangler": "^3.60.3"
   },
   "dependencies": {
-    "@neondatabase/serverless": "^0.9.4",
-    "@workos-inc/node": "^7.11.3",
-    "auth0": "^4.6.0",
     "itty-router": "^5.0.17",
     "jose": "^5.6.2",
     "zod": "^3.23.8"
-  }
+  },
+	"optionalDependencies": {
+		"@neondatabase/serverless": "^0.9.4",
+    "@workos-inc/node": "^7.11.3",
+    "auth0": "^4.6.0"
+	}
 }
