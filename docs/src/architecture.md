@@ -2,48 +2,24 @@
 outline: deep
 ---
 
-# Runtime API Examples
+# Architecture
 
-This page demonstrates usage of some of the runtime APIs provided by VitePress.
+A high-level view of the architecture that portrays the various components:
 
-The main `useData()` API can be used to access site, theme, and page data for the current page. It works in both `.md` and `.vue` files:
+TODO link image
 
-```md
-<script setup>
-import { useData } from 'vitepress'
+## Overview
 
-const { theme, page, frontmatter } = useData()
-</script>
+The components of the EOS architecture can be broken down into:
 
-## Results
+1. OAuth Envoy
+2. OAuth Proxy
 
-### Theme Data
-<pre>{{ theme }}</pre>
+### OAuth Envoy
 
-### Page Data
-<pre>{{ page }}</pre>
+This component of the system deals largely with the OAuth user experience; routes like `/login` and `/callback` which facilitate the OAuth flow for traditional web server applications so that users can delegate access to the edge functions.
 
-### Page Frontmatter
-<pre>{{ frontmatter }}</pre>
-```
+### OAuth Proxy
 
-<script setup>
-import { useData } from 'vitepress'
+Once an auth session exists for the user, their delegated access needs to be assured in all requests so long as they are authenticated. This is the job of the Proxy component: Attach a valid access token for HTTP requests from existing web sessions. The access token is passed in the downstream, proxied HTTP request thus providing the necessary *authentication* mechanisms for resource servers to act upon.
 
-const { site, theme, page, frontmatter } = useData()
-</script>
-
-## Results
-
-### Theme Data
-<pre>{{ theme }}</pre>
-
-### Page Data
-<pre>{{ page }}</pre>
-
-### Page Frontmatter
-<pre>{{ frontmatter }}</pre>
-
-## More
-
-Check out the documentation for the [full list of runtime APIs](https://vitepress.dev/reference/runtime-api#usedata).
