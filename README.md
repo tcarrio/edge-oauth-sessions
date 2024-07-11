@@ -33,7 +33,7 @@ This project is definitely a work in-progress. It builds on experience running C
 
 ## Architecture
 
-![./docs/high-level-architecture.png](./docs/high-level-architecture.png)
+![./assets/high-level-architecture.png](./assets/high-level-architecture.png)
 
 ## How it works
 

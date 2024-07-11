@@ -1,0 +1,17 @@
+{
+  "name": "@eos/docs",
+  "version": "1.0.0",
+  "description": "Docs site for edge-oauth-sessions",
+  "main": "index.js",
+  "author": "Tom Carrio <tom@carrio.dev>",
+	"license": "AGPL-3.0-only",
+  "private": true,
+  "devDependencies": {
+    "vitepress": "^1.0.0-rc.44"
+  },
+  "scripts": {
+    "docs:dev": "vitepress dev src",
+    "docs:build": "vitepress build src",
+    "docs:preview": "vitepress preview src"
+  }
+}

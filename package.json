@@ -1,7 +1,9 @@
 {
-  "name": "auth0-cf-workers",
+  "name": "edge-oauth-sessions",
   "version": "0.0.0",
   "private": true,
+  "author": "Tom Carrio <tom@carrio.dev>",
+	"license": "AGPL-3.0-only",
   "scripts": {
     "deploy": "wrangler deploy",
     "dev": "wrangler dev",
