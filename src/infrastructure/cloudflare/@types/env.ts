@@ -43,4 +43,7 @@ export interface Env {
 	//
 	// Example binding to a Queue. Learn more at https://developers.cloudflare.com/queues/javascript-apis/
 	// MY_QUEUE: Queue;
+	// Example binding to a D1 database.
+	D1_DATABASE: D1Database;
+	D1_COOKIE_SECRET_TABLE_NAME: string;
 }

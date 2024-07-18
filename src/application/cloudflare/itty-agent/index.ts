@@ -1,10 +1,10 @@
-import { CallbackHandler } from '@eos/application/handlers/callback.handler';
-import { LoginHandler } from '@eos/application/handlers/login.handler';
-import { LogoutHandler } from '@eos/application/handlers/logout.handler';
-import { ProxyHandler } from '@eos/application/handlers/proxy.handler';
-import { AuthSessionMiddleware } from '@eos/application/middleware/auth-session.middleware';
-import { BotScoringMiddleware } from '@eos/application/middleware/cloudflare/bot-scoring.middleware';
-import { GeolocationMiddleware } from '@eos/application/middleware/cloudflare/geolocation.middleware';
+import { CallbackHandler } from '@eos/application/itty/handlers/callback.handler';
+import { LoginHandler } from '@eos/application/itty/handlers/login.handler';
+import { LogoutHandler } from '@eos/application/itty/handlers/logout.handler';
+import { ProxyHandler } from '@eos/application/itty/handlers/proxy.handler';
+import { AuthSessionMiddleware } from '@eos/application/itty/middleware/auth-session.middleware';
+import { BotScoringMiddleware } from '@eos/application/itty/middleware/cloudflare/bot-scoring.middleware';
+import { GeolocationMiddleware } from '@eos/application/itty/middleware/cloudflare/geolocation.middleware';
 import { merge } from '@eos/domain/functional/array';
 import { memoize } from '@eos/domain/functional/memoize';
 import { Env } from '@eos/infrastructure/cloudflare/@types/env';

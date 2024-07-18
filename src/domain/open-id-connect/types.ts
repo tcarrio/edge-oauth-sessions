@@ -1,4 +1,10 @@
-export interface BaseOAuthOptions extends Record<string, unknown> {
+import { AuthorizationUrlOptions } from "./client";
+
+export type BaseOAuthOptions = {
 	clientId: string;
-	redirectUri: string;
+	clientSecret: string;
+	issuerUrl: string;
+	authorization: Partial<AuthorizationUrlOptions>;
 }
+
+export type EnumConstType<T> = T[keyof T];
