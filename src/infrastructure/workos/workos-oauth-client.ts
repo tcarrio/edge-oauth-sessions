@@ -5,13 +5,14 @@ import {
 	RefreshOptions,
 	ScreenHintType,
 } from '@eos/domain/open-id-connect/client';
-import { BaseOAuthOptions } from '@eos/domain/open-id-connect/types';
+import { BaseOIDCOptions, BaseOIDCOptionsSchema } from '@eos/domain/open-id-connect/types';
 import { SessionState } from '@eos/domain/sessions/session-state';
 import { WorkOS } from '@workos-inc/node';
 import type { AuthorizationURLOptions } from '@workos-inc/node/lib/user-management/interfaces/authorization-url-options.interface';
+import { z } from 'zod';
 
 export class WorkOSOAuthClient implements OpenIDConnectClient {
-	constructor(private readonly workOS: WorkOS, private readonly options: WorkOSOAuthOptions) {}
+	constructor(private readonly workOS: WorkOS, private readonly options: WorkOSOIDCOptions) {}
 
 	getAuthorizationUrl({ screenHint, ...options }: AuthorizationUrlOptions): string {
 		return this.workOS.userManagement.getAuthorizationUrl({
@@ -43,6 +44,10 @@ export class WorkOSOAuthClient implements OpenIDConnectClient {
 	}
 }
 
-export interface WorkOSOAuthOptions extends BaseOAuthOptions {
+export const WorkOSOIDCOptionsSchema = z.object({
+	apiKey: z.string().min(1),
+}).merge(BaseOIDCOptionsSchema);
+
+export interface WorkOSOIDCOptions extends BaseOIDCOptions {
 	apiKey: string;
 }

@@ -29,7 +29,7 @@ export class DurableAuthSessionObject extends DurableObject<Env> implements Auth
 		this.ttlMs = env.JWKS_CACHE_TIME_SECONDS * 1000;
 		this.jwks = jwksSetFactory(env.JWKS_URI, { cacheMaxAge: this.ttlMs });
 
-		this.openIDConnectClient = OpenIDConnectClientFactory.forEnv(env);
+		this.openIDConnectClient = OpenIDConnectClientFactory.withFetchClient().forEnv(env);
 		this.sessionRepository = new DurableObjectStateSessionRepository(ctx);
 	}
 
@@ -51,7 +51,7 @@ export class DurableAuthSessionObject extends DurableObject<Env> implements Auth
 
 		const { accessToken, refreshToken } = credentials.parsed();
 		if (typeof accessToken.payload?.exp !== 'number' || (accessToken.payload?.exp ?? 0) < Date.now()) {
-			const newRawCredentials = await this.openIDConnectClient.refresh({ refreshToken });
+			const newRawCredentials = await this.openIDConnectClient.refresh({ refresh_token: refreshToken });
 
 			await this.sessionRepository.upsert(sessionId, newRawCredentials);
 

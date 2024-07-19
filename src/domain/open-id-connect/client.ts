@@ -6,6 +6,7 @@
  * @see {@link https://tools.ietf.org/html/rfc6749}
  */
 
+import { z } from 'zod';
 import { SessionState } from '../sessions/session-state';
 import { EnumConstType } from './types';
 
@@ -14,6 +15,36 @@ export interface OpenIDConnectClient {
 	exchangeCode(options: ExchangeCodeOptions): Promise<SessionState>;
 	refresh(options: RefreshOptions): Promise<SessionState>;
 }
+
+export const AuthorizationUrlOptionsSchema = z.object({
+	scope: z.union([z.string(), z.array(z.string())]),
+	response_type: z.string(),
+	client_id: z.string(),
+	redirect_uri: z.string().url(),
+	state: z.string(),
+
+	// PKCE
+	code_challenge: z.string().optional(),
+	code_challenge_method: z.string().optional(),
+
+	nonce: z.string().optional(),
+	display: z.string().optional(),
+	prompt: z.string().optional(),
+
+	max_age: z.string().optional(),
+	ui_locales: z.string().optional(),
+	id_token_hint: z.string().optional(),
+	login_hint: z.string().optional(),
+	acr_values: z.string().optional(),
+
+	/// Observed provider-specific hints, not part of the spec, may not be fulfilled by all providers
+
+	connection: z.string().optional(),
+	organizationId: z.string().optional(),
+	domainHint: z.string().optional(),
+	provider: z.string().optional(),
+	screenHint: z.string().optional(),
+});
 
 export interface AuthorizationUrlOptions extends Record<string, any> {
 	/**

@@ -7,7 +7,7 @@ import {
 	RefreshOptions,
 } from '@eos/domain/open-id-connect/client';
 import { OAuthCodeExchangeResponseSchema } from '@eos/domain/open-id-connect/code-exchange';
-import { BaseOAuthOptions } from '@eos/domain/open-id-connect/types';
+import { BaseOIDCOptions, BaseOIDCOptionsSchema } from '@eos/domain/open-id-connect/types';
 import { SessionState } from '@eos/domain/sessions/session-state';
 import { HttpClient, HttpOptions, ResponseFormat } from '../http/http-client';
 
@@ -109,13 +109,16 @@ export class GenericOIDCClient implements OpenIDConnectClient {
 	}
 }
 
-export interface GenericOIDCOptions extends BaseOAuthOptions {
-	clientSecret: string;
-	issuerUrl: string;
+export const GenericOIDCOptionsSchema = BaseOIDCOptionsSchema.extend({
+	baseURL: z.string(),
+	issuerBaseURL: z.string(),
+	secret: z.string(),
+});
 
+export interface GenericOIDCOptions extends BaseOIDCOptions {
 	baseURL: string;
 	issuerBaseURL: string;
-	secret: Buffer;
+	secret: string;
 
 	authorization: Partial<Omit<AuthorizationUrlOptions, 'client_id' | 'redirect_uri'>> &
 		Required<Pick<AuthorizationUrlOptions, 'client_id' | 'redirect_uri'>>;

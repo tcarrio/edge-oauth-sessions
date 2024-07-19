@@ -12,6 +12,8 @@ import { AuthSessionManagerFactoryFactory } from '@eos/infrastructure/cloudflare
 import { CloudflareConfigFactory } from '@eos/infrastructure/cloudflare/factories/config';
 import { RouterConfigFactory } from '@eos/infrastructure/cloudflare/factories/router-config';
 import { WorkerCryptoUuidFactory } from '@eos/infrastructure/cloudflare/uuid/WorkerCryptoUuidFactory';
+import { FetchHttpClient } from '@eos/infrastructure/http/fetch-http-client';
+import { ResponseFormat } from '@eos/infrastructure/http/http-client';
 import { OpenIDConnectConfigFactory } from '@eos/infrastructure/open-id-connect/config';
 import { OpenIDConnectClientFactory } from '@eos/infrastructure/open-id-connect/factory';
 import { D1CookieSecretRepository } from '@eos/infrastructure/persistence/d1/cookie-secret-repository';
@@ -36,10 +38,14 @@ const getRouter = memoize((env: Env): Hono => {
 	const authSessionManagerFactory = AuthSessionManagerFactoryFactory.forEnv(env);
 	const routerConfig = RouterConfigFactory.forEnv(env);
 	const oidcConfig = OpenIDConnectConfigFactory.forEnv(env);
-	const oidcClient = OpenIDConnectClientFactory.forEnv(env);
 	const featureConfig = CloudflareConfigFactory.forEnv(env);
-
 	const uuidFactory = WorkerCryptoUuidFactory.instance();
+
+	// TODO: Base URL for HttpClient
+	const oidcAgentHttpClient = new FetchHttpClient({ baseUrl: '', followRedirects: 0, responseFormat: ResponseFormat.JSON, })
+
+	const oidcClient = new OpenIDConnectClientFactory(oidcAgentHttpClient).forEnv(env);
+
 	const cookieSecretRepository = new D1CookieSecretRepository(env.D1_DATABASE, env.D1_COOKIE_SECRET_TABLE_NAME);
 
 	// initialize all middlewares and return singleton router as necessary

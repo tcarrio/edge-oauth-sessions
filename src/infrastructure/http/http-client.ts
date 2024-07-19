@@ -21,6 +21,8 @@ export const HttpMethod = {
 export type HttpHeaders = Record<string, string>;
 
 export interface HttpOptions {
+	/** The body of the http request */
+	body?: any;
 	/** An object portraying the request's headers. */
 	headers?: HttpHeaders;
 	/** A number indicating whether request follows redirects and how many at a maximum to follow */
@@ -41,7 +43,7 @@ export const ResponseFormat = {
 export interface HttpResponse<T> {
 	readonly ok: boolean;
 	readonly status: number;
-	readonly headers: Readonly<HttpHeaders>;
+	readonly headers: HttpHeaders;
 	data(): Promise<T>;
 }
 
@@ -49,7 +51,8 @@ export class HttpResponse<T> implements HttpResponse<T> {
 	public constructor(
 		public readonly ok: boolean,
 		public readonly status: number,
-		private readonly rawData: Buffer,
+		public readonly headers: HttpHeaders,
+		private readonly textData: string,
 		private readonly dataFormat: ResponseFormatType,
 	) {}
 
@@ -61,9 +64,9 @@ export class HttpResponse<T> implements HttpResponse<T> {
 
 		switch (dataFormat) {
 			case ResponseFormat.JSON:
-				return JSON.parse(this.rawData.toString('utf-8'));
+				return JSON.parse(this.textData);
 			case ResponseFormat.Text:
-				return this.rawData.toString('utf-8') as unknown as T;
+				return this.textData as unknown as T;
 			case ResponseFormat.XML:
 				throw new Error('Not implemented');
 			default:

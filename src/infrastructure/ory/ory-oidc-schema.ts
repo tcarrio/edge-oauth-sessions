@@ -3,7 +3,8 @@ import { OAuthCodeExchangeResponseSchema } from '@eos/domain/open-id-connect/cod
 import { SessionState } from '@eos/domain/sessions/session-state';
 import { Configuration, OAuth2Api } from '@ory/client-fetch';
 import { HttpClient } from '../http/http-client';
-import { GenericOIDCClient, GenericOIDCOptions } from '../open-id-connect/generic-oidc-client';
+import { GenericOIDCClient, GenericOIDCOptions, GenericOIDCOptionsSchema } from '../open-id-connect/generic-oidc-client';
+import { z } from 'zod';
 
 export class OryOIDCClient extends GenericOIDCClient implements OpenIDConnectClient {
 	private readonly oAuth2Api: OAuth2Api;
@@ -18,6 +19,9 @@ export class OryOIDCClient extends GenericOIDCClient implements OpenIDConnectCli
 		);
 	}
 
+	/**
+	 * Utilizes the Ory SDK to accomplish the code exchange since this is supported by the SDK.
+	 */
 	async exchangeCode({
 		clientId = this.options.clientId,
 		code,
@@ -42,6 +46,10 @@ export class OryOIDCClient extends GenericOIDCClient implements OpenIDConnectCli
 		};
 	}
 }
+
+export const OryOIDCOptionsSchema = GenericOIDCOptionsSchema.extend({
+	apiKey: z.string().min(1),
+});
 
 export interface OryOIDCOptions extends GenericOIDCOptions {
 	apiKey: string;

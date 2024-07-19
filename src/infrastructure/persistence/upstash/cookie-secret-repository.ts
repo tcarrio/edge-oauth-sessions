@@ -5,18 +5,11 @@ export class D1CookieSecretRepository implements CookieSecretRepository {
 	constructor(private readonly redis: Redis, private readonly namespace: string) {}
 
 	async findById(id: string): Promise<CookieSecretState | null> {
-		const data = await this.redis.get(this.namespaced(id));
-
-		// TODO: Robustnessness
-		if (!data || typeof data !== 'string') {
-			return null;
-		}
-
-		return JSON.parse(data);
+		return await this.redis.get<CookieSecretState>(this.namespaced(id));
 	}
 
 	async upsert(id: string, state: CookieSecretState): Promise<void> {
-		await this.redis.set(this.namespaced(id), JSON.stringify(state), {
+		await this.redis.set(this.namespaced(id), state, {
 			exat: state.expiresAt.getTime(),
 		});
 	}
@@ -26,7 +19,7 @@ export class D1CookieSecretRepository implements CookieSecretRepository {
 	}
 
 	async expire(): Promise<void> {
-		// no-op, records are self-expriing
+		// no-op, records are self-expiring
 	}
 
 	private namespaced(key: string): string {

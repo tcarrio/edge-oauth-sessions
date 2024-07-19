@@ -1,10 +1,11 @@
 import { AuthorizationUrlOptions, ExchangeCodeOptions, OIDCScopeType, OpenIDConnectClient, RefreshOptions, ScreenHintType } from '@eos/domain/open-id-connect/client';
 import { OAuthCodeExchangeResponseSchema } from '@eos/domain/open-id-connect/code-exchange';
-import { BaseOAuthOptions } from '@eos/domain/open-id-connect/types';
+import { BaseOIDCOptions, BaseOIDCOptionsSchema } from '@eos/domain/open-id-connect/types';
 import { SessionState } from '@eos/domain/sessions/session-state';
 import { AuthenticationClient } from 'auth0';
+import { z } from 'zod';
 
-export class Auth0OAuthClient implements OpenIDConnectClient {
+export class Auth0OIDCClient implements OpenIDConnectClient {
 	private static readonly DEFAULT_SCOPES: OIDCScopeType[] = ['openid', 'profile', 'email'];
 
 	constructor(private readonly auth0: AuthenticationClient, private readonly baseAuthorizationUrl: string) {}
@@ -15,7 +16,7 @@ export class Auth0OAuthClient implements OpenIDConnectClient {
 		url.search = new URLSearchParams({
 			...options,
 			...this.coerceScreenHintOption(screenHint),
-			scope: (options.scope ?? Auth0OAuthClient.DEFAULT_SCOPES).toString(), // TODO: Dynamic scopes based on the auth strategy
+			scope: (options.scope ?? Auth0OIDCClient.DEFAULT_SCOPES).toString(),
 			response_type: 'code',
 			client_id: clientId,
 			redirect_uri: redirectUri,
@@ -52,8 +53,13 @@ export class Auth0OAuthClient implements OpenIDConnectClient {
 	}
 }
 
-export interface Auth0OAuthOptions extends BaseOAuthOptions {
-	clientSecret: string;
+export const Auth0OIDCOptionsSchema = z.object({
+	domain: z.string(),
+	authorizationUri: z.string().url(),
+	refreshUri: z.string().url(),
+}).merge(BaseOIDCOptionsSchema);
+
+export interface Auth0OIDCOptions extends BaseOIDCOptions {
 	domain: string;
 	authorizationUri: string;
 	refreshUri: string;
