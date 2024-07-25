@@ -1,7 +1,7 @@
-import { RawSessionCredentials } from './session-credentials';
+import { ISessionState } from './session-state';
 
 export interface AuthSessionManager {
-	authenticate(sessionId: string): Promise<RawSessionCredentials | undefined>;
+	authenticate(sessionId: string): Promise<ISessionState | undefined>;
 	logout(sessionId: string): Promise<void>;
 }
 

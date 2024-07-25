@@ -1,18 +1,71 @@
-import { any } from "./array";
+import { any } from './array';
 
 type Memoizer<Params extends any[] = any[], Value = any> = InitializedMemoizer<Params, Value> | UninitializedMemoizer;
 
 type InitializedMemoizer<Params extends any[], Value> = {
 	previousArgs: Params;
 	value: Value;
-}
+};
 
 type UninitializedMemoizer = {
 	previousArgs: null;
 	value: null;
+};
+
+type BasicMap<T, U> = Pick<Map<T, U>, 'get' | 'clear' | 'delete' | 'size'> & { set(key: T, value: U): BasicMap<T, U> };
+
+class LeMap<T, U> implements BasicMap<T, U> {
+	private readonly primitiveMap = new Map<T, U>();
+
+	private referenceMap = new WeakMap<object, U>();
+	private referenceMapCount = 0;
+
+	clear(): void {
+		this.primitiveMap.clear();
+		this.referenceMap = new WeakMap<object, U>();
+		this.referenceMapCount = 0;
+	}
+	delete(key: T): boolean {
+		if (this.isReferenceable(key)) {
+			this.referenceMapCount--;
+			return this.referenceMap.delete(key);
+		}
+		return this.primitiveMap.delete(key);
+	}
+	has(key: T): boolean {
+		if (this.isReferenceable(key)) {
+			return this.referenceMap.has(key);
+		}
+		return this.primitiveMap.has(key);
+	}
+	set(key: T, value: U): this {
+		if (this.isReferenceable(key)) {
+			if (!this.referenceMap.has(key)) {
+				this.referenceMapCount++;
+			}
+			this.referenceMap.set(key, value);
+		} else {
+			this.primitiveMap.set(key, value);
+		}
+		return this;
+	}
+	get(key: T): U | undefined {
+		if (this.isReferenceable(key)) {
+			this.referenceMapCount--;
+			return this.referenceMap.get(key);
+		}
+		return this.primitiveMap.get(key);
+	}
+	get size(): number {
+		return this.primitiveMap.size + this.referenceMapCount;
+	}
+
+	private isReferenceable(key: unknown): key is object {
+		return typeof key === 'object';
+	}
 }
 
-export function memoize<Fn extends (...args: any[]) => any,>(fn: Fn): Fn {
+export function memoize<Fn extends (...args: any[]) => any>(fn: Fn): Fn {
 	const memoizer: Memoizer<Parameters<Fn>, ReturnType<Fn>> = { previousArgs: null, value: null };
 
 	function memoized(...args: Parameters<Fn>): ReturnType<Fn> {
@@ -26,7 +79,7 @@ export function memoize<Fn extends (...args: any[]) => any,>(fn: Fn): Fn {
 		memoizer.value = fn.apply(fn, args);
 
 		return memoizer.value!;
-	};
+	}
 
 	// @ts-ignore
 	return memoized;
@@ -45,16 +98,16 @@ function deepEquals(x: any, y: any): x is typeof y {
 	}
 
 	switch (typeX) {
-		case "bigint":
-		case "boolean":
-		case "number":
-		case "string":
-		case "symbol":
-		case "undefined":
-		case "function":
+		case 'bigint':
+		case 'boolean':
+		case 'number':
+		case 'string':
+		case 'symbol':
+		case 'undefined':
+		case 'function':
 			return x === y;
 
-		case "object":
+		case 'object':
 			if (x === y) {
 				return true;
 			}

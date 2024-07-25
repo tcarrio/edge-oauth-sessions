@@ -1,7 +1,7 @@
-import { SessionState } from "./session-state";
+import { ISessionState } from './session-state';
 
 export interface SessionRepository {
-	findById(id: string): Promise<SessionState | null>;
-	upsert(id: string, session: SessionState): Promise<void>;
+	findById(id: string): Promise<ISessionState | null>;
+	upsert(id: string, session: ISessionState): Promise<void>;
 	delete(id: string): Promise<void>;
 }

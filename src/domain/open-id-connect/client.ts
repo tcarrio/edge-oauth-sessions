@@ -8,43 +8,13 @@
 
 import { z } from 'zod';
 import { SessionState } from '../sessions/session-state';
-import { EnumConstType } from './types';
+import { EnumConstType, enumValues } from './types';
 
 export interface OpenIDConnectClient {
 	getAuthorizationUrl(options: Partial<AuthorizationUrlOptions>): string;
 	exchangeCode(options: ExchangeCodeOptions): Promise<SessionState>;
 	refresh(options: RefreshOptions): Promise<SessionState>;
 }
-
-export const AuthorizationUrlOptionsSchema = z.object({
-	scope: z.union([z.string(), z.array(z.string())]),
-	response_type: z.string(),
-	client_id: z.string(),
-	redirect_uri: z.string().url(),
-	state: z.string(),
-
-	// PKCE
-	code_challenge: z.string().optional(),
-	code_challenge_method: z.string().optional(),
-
-	nonce: z.string().optional(),
-	display: z.string().optional(),
-	prompt: z.string().optional(),
-
-	max_age: z.string().optional(),
-	ui_locales: z.string().optional(),
-	id_token_hint: z.string().optional(),
-	login_hint: z.string().optional(),
-	acr_values: z.string().optional(),
-
-	/// Observed provider-specific hints, not part of the spec, may not be fulfilled by all providers
-
-	connection: z.string().optional(),
-	organizationId: z.string().optional(),
-	domainHint: z.string().optional(),
-	provider: z.string().optional(),
-	screenHint: z.string().optional(),
-});
 
 export interface AuthorizationUrlOptions extends Record<string, any> {
 	/**
@@ -222,6 +192,43 @@ export const OIDCScope = {
 	 */
 	Phone: 'phone',
 } as const;
+export const OIDCScopeValues = enumValues(OIDCScope);
+
+export type ScreenHintType = EnumConstType<typeof ScreenHint>;
+export const ScreenHint = {
+	SignUp: 'SignUp',
+	SignIn: 'SignIn',
+} as const;
+
+export const AuthorizationUrlOptionsSchema = z.object({
+	scope: z.union([z.string(), z.array(z.string()), z.array(z.union([z.enum(enumValues(OIDCScope)), z.string()]))]),
+	response_type: z.enum(enumValues(ResponseType)),
+	client_id: z.string(),
+	redirect_uri: z.string().url(),
+	state: z.string(),
+
+	// PKCE
+	code_challenge: z.string().optional(),
+	code_challenge_method: z.enum(['S256']).optional(),
+
+	nonce: z.string().optional(),
+	display: z.string().optional(),
+	prompt: z.string().optional(),
+
+	max_age: z.string().optional(),
+	ui_locales: z.string().optional(),
+	id_token_hint: z.string().optional(),
+	login_hint: z.string().optional(),
+	acr_values: z.string().optional(),
+
+	/// Observed provider-specific hints, not part of the spec, may not be fulfilled by all providers
+
+	connection: z.string().optional(),
+	organizationId: z.string().optional(),
+	domainHint: z.string().optional(),
+	provider: z.string().optional(),
+	screenHint: z.enum(enumValues(ScreenHint)).optional(),
+}) satisfies z.ZodType<AuthorizationUrlOptions>;
 
 export type DisplayType = EnumConstType<typeof Display>;
 export const Display = {
@@ -261,12 +268,6 @@ export const Prompt = {
 	 * The Authorization Server SHOULD prompt the End-User to select a user account. This enables an End-User who has multiple accounts at the Authorization Server to select amongst the multiple accounts that they might have current sessions for. If it cannot obtain an account selection choice made by the End-User, it MUST return an error, typically account_selection_required. The prompt parameter can be used by the Client to make sure that the End-User is still present for the current session or to bring attention to the request. If this parameter contains none with any other value, an error is returned. If an OP receives a prompt value outside the set defined above that it does not understand, it MAY return an error or it MAY ignore it; in practice, not returning errors for not-understood values will help facilitate phasing in extensions using new prompt values.
 	 */
 	SelectAccount: 'select_account',
-} as const;
-
-export type ScreenHintType = EnumConstType<typeof ScreenHint>;
-export const ScreenHint = {
-	SignUp: 'SignUp',
-	SignIn: 'SignIn',
 } as const;
 
 export interface SuccessAuthenticationResponseParameters {
@@ -515,8 +516,8 @@ export interface IDTokenClaims {
 	 */
 	phone_number_verified: boolean;
 	/**
-	 End-User's preferred postal address. The value of the address member is a JSON [RFC8259] structure containing some or all of the members defined in Section 5.1.1.
-	 */
+   End-User's preferred postal address. The value of the address member is a JSON [RFC8259] structure containing some or all of the members defined in Section 5.1.1.
+   */
 	address: AddressClaim;
 	/**
 	 * Time the End-User's information was last updated. Its value is a JSON number representing the number of seconds from 1970-01-01T00:00:00Z as measured in UTC until the date/time.
