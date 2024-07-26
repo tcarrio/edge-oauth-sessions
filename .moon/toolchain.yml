@@ -1,0 +1,11 @@
+$schema: 'https://moonrepo.dev/schemas/toolchain.json'
+
+node:
+  packageManager: 'npm'
+  npm: {}
+
+typescript:
+  projectConfigFileName: 'tsconfig.json'
+  rootConfigFileName: 'tsconfig.json'
+  routeOutDirToCache: true
+  syncProjectReferences: true
