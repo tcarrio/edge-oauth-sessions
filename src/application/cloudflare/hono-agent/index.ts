@@ -1,16 +1,16 @@
 import { CallbackHandler } from '@eos/application/hono/handlers/callback.handler';
 import { LoginHandler } from '@eos/application/hono/handlers/login.handler';
 import { LogoutHandler } from '@eos/application/hono/handlers/logout.handler';
-import { ProxyHandler } from '@eos/application/hono/handlers/proxy.handler';
+import { PassthroughProxyHandler } from '@eos/application/hono/handlers/passthrough-proxy.handler';
 import { AuthSessionMiddleware } from '@eos/application/hono/middleware/auth-session.middleware';
 import { BotScoringMiddleware } from '@eos/application/hono/middleware/cloudflare/bot-scoring.middleware';
 import { GeolocationMiddleware } from '@eos/application/hono/middleware/cloudflare/geolocation.middleware';
 import { WithCookiesMiddleware } from '@eos/application/hono/middleware/with-cookies';
 import { memoize } from '@eos/domain/functional/memoize';
 import { Env } from '@eos/infrastructure/cloudflare/@types/env';
-import { AuthSessionManagerFactoryFactory } from '@eos/infrastructure/cloudflare/factories/auth-session-manager';
-import { CloudflareConfigFactory } from '@eos/infrastructure/cloudflare/factories/config';
-import { RouterConfigFactory } from '@eos/infrastructure/cloudflare/factories/router-config';
+import { CloudflareConfigFactory } from '@eos/infrastructure/cloudflare/config';
+import { RouterConfigFactory } from '@eos/infrastructure/hono/router/config';
+import { AuthSessionManagerFactoryFactory } from '@eos/infrastructure/cloudflare/sessions/auth-session-manager';
 import { WorkerCryptoUuidFactory } from '@eos/infrastructure/cloudflare/uuid/WorkerCryptoUuidFactory';
 import { FetchHttpClient } from '@eos/infrastructure/http/fetch-http-client';
 import { ResponseFormat } from '@eos/infrastructure/http/http-client';
@@ -67,7 +67,7 @@ const getRouter = memoize((env: Env): Hono => {
 	router.get(routerConfig.callbackPath, new CallbackHandler(oidcConfig, oidcClient).bind());
 
 	// proxy all remaining routes with Token Handler support
-	router.all('*', new AuthSessionMiddleware(authSessionManagerFactory).bind(), new ProxyHandler().bind());
+	router.all('*', new AuthSessionMiddleware(authSessionManagerFactory).bind(), new PassthroughProxyHandler().bind());
 
 	return router;
 });

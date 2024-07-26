@@ -24,16 +24,16 @@ export class AuthSessionMiddleware extends Middleware {
 
 		const session = await authSessionManager.authenticate(sessionId);
 		if (!session) {
-			return next();
+			return await next();
 		}
 
 		const { accessToken } = session;
 		if (!accessToken) {
-			return next();
+			return await next();
 		}
 
 		ctx.req.raw.headers.set(AuthSessionMiddleware.AUTHORIZATION_HEADER, `Bearer ${accessToken}`);
 
-		return next();
+		return await next();
 	}
 }

@@ -14,7 +14,7 @@ type UninitializedMemoizer = {
 
 type BasicMap<T, U> = Pick<Map<T, U>, 'get' | 'clear' | 'delete' | 'size'> & { set(key: T, value: U): BasicMap<T, U> };
 
-class LeMap<T, U> implements BasicMap<T, U> {
+class AnyMap<T, U> implements BasicMap<T, U> {
 	private readonly primitiveMap = new Map<T, U>();
 
 	private referenceMap = new WeakMap<object, U>();

@@ -1,19 +1,18 @@
-import { SessionRepository } from '@eos/domain/sessions/session-repository';
-import { ISessionState } from '@eos/domain/sessions/session-state';
 import { z } from 'zod';
 import { KVConfig } from './config';
 import { KVService } from './service';
+import { CookieSecretRepository, CookieSecretState } from '@eos/domain/sessions/cookie-secret-repository';
 
 const KVStateSchema = z.object({
-	accessToken: z.string(),
-	refreshToken: z.string(),
-	idToken: z.string().optional(),
+	value: z.string(),
+	createdAt: z.date(),
+	expiresAt: z.date(),
 });
 
-export class KVSessionRepository implements SessionRepository {
+export class KVCookieSecretRepository implements CookieSecretRepository {
 	constructor(private readonly service: KVService, private readonly config: KVConfig) {}
 
-	async findById(id: string): Promise<ISessionState | null> {
+	async findById(id: string): Promise<CookieSecretState | null> {
 		const json = this.service.getClient().get(this.keyForSessionId(id), { type: 'json' });
 
 		const { success, data } = KVStateSchema.safeParse(json);
@@ -27,13 +26,17 @@ export class KVSessionRepository implements SessionRepository {
 		return data;
 	}
 
-	async upsert(id: string, session: ISessionState): Promise<void> {
-		this.service.getClient().put(this.keyForSessionId(id), JSON.stringify(session));
+	async upsert(id: string, state: CookieSecretState): Promise<void> {
+		this.service.getClient().put(this.keyForSessionId(id), JSON.stringify(state), {expiration: state.expiresAt.getTime()});
 	}
 
 	async delete(id: string): Promise<void> {
 		this.service.getClient().delete(this.keyForSessionId(id));
 	}
+
+    async expire(): Promise<void> {
+        // no-op, keys are auto-expiring
+    }
 
 	private keyForSessionId(id: string): string {
 		return [this.config.keyPrefix, id].filter(Boolean).join('-');

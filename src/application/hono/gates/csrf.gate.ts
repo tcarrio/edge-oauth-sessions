@@ -16,15 +16,17 @@ export class CaptchaGate extends Gate {
 	async handle(ctx: WithCookies, next: Next): Promise<Response | void> {
 		// exit early if CSRF is disabled
 		if (!this.config.isEnabled()) {
-			return next();
+			return await next();
 		}
 
 		if (!PROTECTED_METHODS.has(ctx.req.method) || !this.config.isProtectedRoute(ctx.req.path)) {
-			return next();
+			return await next();
 		}
 
 		try {
 			this.validateCsrf(ctx);
+
+			return await next();
 		} catch (err) {
 			return new Response(null, { status: HttpStatusCodes.BAD_REQUEST });
 		}

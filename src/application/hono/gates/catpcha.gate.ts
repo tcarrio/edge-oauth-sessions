@@ -9,7 +9,7 @@ import { Gate } from './gate';
 export class CaptchaGate extends Gate {
 	async handle(ctx: WithCookies, next: Next): Promise<Response | void> {
 		if (hasPassedCaptcha(ctx)) {
-			return next();
+			return await next();
 		}
 
 		return challengeWithCaptcha();

@@ -1,5 +1,5 @@
 import { SessionRepository } from '@eos/domain/sessions/session-repository';
-import { SessionState } from '@eos/domain/sessions/session-state';
+import { ISessionState } from '@eos/domain/sessions/session-state';
 import { z } from 'zod';
 import { NeonConfig } from './config';
 import { NeonService } from './service';
@@ -13,7 +13,7 @@ const DatabaseRecordSchema = z.object({
 export class NeonSessionRepository implements SessionRepository {
 	constructor(private readonly service: NeonService, private readonly config: NeonConfig) {}
 
-	async findById(id: string): Promise<SessionState | null> {
+	async findById(id: string): Promise<ISessionState | null> {
 		const { rows } = await this.service.getClient().query(
 			`select access_token, refresh_token, id_token
 			from ${this.config.sessionsTable}
@@ -41,7 +41,7 @@ export class NeonSessionRepository implements SessionRepository {
 			idToken: data.id_token,
 		};
 	}
-	async upsert(id: string, session: SessionState): Promise<void> {
+	async upsert(id: string, session: ISessionState): Promise<void> {
 		const { accessToken, refreshToken, idToken } = session;
 
 		await this.service.getClient().query(

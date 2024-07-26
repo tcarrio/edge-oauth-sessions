@@ -174,3 +174,6 @@ dist
 # nix+direnv project
 
 /.direnv/
+
+# artifacts
+/.data/

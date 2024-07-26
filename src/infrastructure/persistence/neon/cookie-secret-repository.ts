@@ -1,10 +1,11 @@
 import { CookieSecretRepository, CookieSecretState } from '@eos/domain/sessions/cookie-secret-repository';
+import { PostgresStatementTemplates } from '../postgres/cookie-secret-statements';
 
-export class D1CookieSecretRepository implements CookieSecretRepository {
-	private readonly statementTemplates: StatementTemplates;
+export class NeonCookieSecretRepository implements CookieSecretRepository {
+	private readonly statementTemplates: PostgresStatementTemplates;
 
 	constructor(private readonly db: D1Database, table: string) {
-		this.statementTemplates = new StatementTemplates(table);
+		this.statementTemplates = new PostgresStatementTemplates(table);
 	}
 
 	async findById(id: string): Promise<CookieSecretState | null> {
@@ -29,30 +30,5 @@ export class D1CookieSecretRepository implements CookieSecretRepository {
 		const statement = this.db.prepare(this.statementTemplates.expire).bind(time);
 
 		await statement.run();
-	}
-}
-
-const Columns = {
-	Id: 'id',
-	Secret: 'secret',
-	CreatedAt: 'created_at',
-	ExpiresAt: 'expires_at',
-} as const;
-const C = Columns;
-
-export class StatementTemplates {
-	constructor(private readonly table: string) {}
-	get findById() {
-		return `SELECT * FROM ${this.table} WHERE id = ?1`;
-	}
-	get upsert() {
-		return `INSERT INTO ${this.table}(${C.Id},${C.Secret},${C.CreatedAt},${C.ExpiresAt}) VALUES(?1, ?2, ?3, ?4)
-  		ON CONFLICT(${C.Id}) DO UPDATE SET ${C.Id}=?1,${C.Secret}=?2,${C.CreatedAt}=?3,${C.ExpiresAt}=?4;`;
-	}
-	get delete() {
-		return `DELETE FROM ${this.table} WHERE id = ?1`;
-	}
-	get expire() {
-		return `DELETE FROM ${this.table} WHERE expires_at < ?1`;
 	}
 }

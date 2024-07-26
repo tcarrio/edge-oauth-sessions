@@ -1,6 +1,5 @@
 import { RouterConfig } from '@eos/application/router/config';
 import { z } from 'zod';
-import { Env } from '../@types/env';
 
 const RouterConfigDefaults: Omit<RouterConfig, 'domain'> = {
 	cookieKey: 'auth-session-id',
@@ -18,7 +17,7 @@ const EnvRouterConfigSchema = z.object({
 });
 
 export class RouterConfigFactory {
-	static forEnv(env: Env): RouterConfig {
+	static forEnv(env: unknown): RouterConfig {
 		const { ROUTER_DOMAIN, ROUTER_COOKIE_KEY, ROUTER_CALLBACK_PATH, ROUTER_LOGIN_PATH, ROUTER_LOGOUT_PATH } = EnvRouterConfigSchema.parse(env);
 
 		return new RouterConfig(ROUTER_DOMAIN, ROUTER_COOKIE_KEY, ROUTER_CALLBACK_PATH, ROUTER_LOGIN_PATH, ROUTER_LOGOUT_PATH);

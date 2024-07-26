@@ -1,29 +1,22 @@
-import { AuthenticationClient } from 'auth0';
-import { Auth0OIDCClient, Auth0OIDCOptions, Auth0OIDCOptionsSchema } from '../auth0/auth0-oidc-client';
 import { OpenIDConnectClient } from '@eos/domain/open-id-connect/client';
-import { WorkOSOAuthClient, WorkOSOIDCOptions, WorkOSOIDCOptionsSchema } from '../workos/workos-oauth-client';
 import { WorkOS } from '@workos-inc/node';
-import { GenericOIDCClient, GenericOIDCOptions, GenericOIDCOptionsSchema } from './generic-oidc-client';
-import { z } from 'zod';
-import { HttpClient } from '../http/http-client';
-import { OryOIDCClient, OryOIDCOptions, OryOIDCOptionsSchema } from '../ory/ory-oidc-schema';
-import { FetchHttpClient } from '../http/fetch-http-client';
+import { AuthenticationClient } from 'auth0';
+import { mapper as auth0Mapper, Auth0OIDCClient, Auth0OIDCOptionsSchema, EnvAuth0OIDCOptionsSchema } from '../auth0/auth0-oidc-client';
 import { FetchHttpClientConfig } from '../http/fetch-config';
+import { FetchHttpClient } from '../http/fetch-http-client';
+import { HttpClient } from '../http/http-client';
+import { EnvOryOIDCOptionsSchema, mapper as oryMapper, OryOIDCClient, OryOIDCOptions, OryOIDCOptionsSchema } from '../ory/ory-oidc-schema';
+import { EnvWorkOSOIDCOptionsSchema, mapper as workOSMapper, WorkOSOAuthClient, WorkOSOIDCOptions, WorkOSOIDCOptionsSchema } from '../workos/workos-oauth-client';
+import { EnvGenericOIDCOptionsSchema, mapper as genericMapper, GenericOIDCClient, GenericOIDCOptions, GenericOIDCOptionsSchema } from './generic-oidc-client';
+import { assertZ } from '@eos/domain/invariance';
+import { z } from 'zod';
 
-const Strategy = {
+export const Strategy = {
 	Auth0: 'auth0',
 	WorkOS: 'workos',
 	Ory: 'ory',
 	Generic: 'generic',
 } as const;
-
-const EnvOpenIDConnectClientFactorySchema = z.object({
-	OAUTH_STRATEGY: z.string(),
-	OAUTH_CLIENT_ID: z.string(),
-	OAUTH_CLIENT_SECRET: z.string(),
-	OAUTH_REFRESH_URI: z.string().url(),
-	OAUTH_REFRESH_MAX_RETRIES: z.number(),
-});
 
 export class OpenIDConnectClientFactory {
 	constructor(private readonly httpClient: HttpClient) {}
@@ -32,13 +25,36 @@ export class OpenIDConnectClientFactory {
 		return new OpenIDConnectClientFactory(new FetchHttpClient(FetchHttpClientConfig.default()));
 	}
 
-	forEnv(env: z.infer<typeof EnvOpenIDConnectClientFactorySchema>): OpenIDConnectClient {
-		return this.forStrategy(env.OAUTH_STRATEGY, {
-			clientId: env.OAUTH_CLIENT_ID,
-			clientSecret: env.OAUTH_CLIENT_SECRET,
-			redirectUri: env.OAUTH_REFRESH_URI,
-			retries: env.OAUTH_REFRESH_MAX_RETRIES,
-		});
+	forEnv(env: unknown): OpenIDConnectClient {
+		assertZ(z.object({
+			OAUTH_STRATEGY: z.string().optional(),
+		}), env, 'Env must be a valid object');
+
+		const strategy = env.OAUTH_STRATEGY;
+
+		switch (strategy) {
+			case Strategy.Auth0:
+				const { authorizationUri, ...auth0Options } = auth0Mapper(EnvAuth0OIDCOptionsSchema.parse(env));
+
+				return new Auth0OIDCClient(new AuthenticationClient({ ...auth0Options }), authorizationUri);
+
+			case Strategy.WorkOS:
+				const { apiKey, ...workOSOptions } = workOSMapper(EnvWorkOSOIDCOptionsSchema.parse(env));
+
+				// TODO: Zod schema parity with interface
+				return new WorkOSOAuthClient(new WorkOS(apiKey), workOSOptions as WorkOSOIDCOptions);
+
+			case Strategy.Ory:
+				const oryOptions = oryMapper(EnvOryOIDCOptionsSchema.parse(env));
+
+				return new OryOIDCClient(oryOptions, this.httpClient);
+
+			case Strategy.Generic:
+			default:
+				const genericOptions = genericMapper(EnvGenericOIDCOptionsSchema.parse(env));
+
+				return new GenericOIDCClient(genericOptions, this.httpClient);
+		}
 	}
 
 	forStrategy(strategy: any, options: Record<string, any>): OpenIDConnectClient {

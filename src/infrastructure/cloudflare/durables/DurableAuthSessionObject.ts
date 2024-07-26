@@ -2,12 +2,12 @@ import { DurableObject } from 'cloudflare:workers';
 import { Env } from "../@types/env";
 import { JWKSet, jwksSetFactory } from '@eos/domain/open-id-connect/jwks';
 import { AuthSessionManager } from '@eos/domain/sessions/auth-session-manager';
-import { SessionCredentials } from '@eos/domain/sessions/session-credentials';
+import { HydratingSessionState, ISessionState } from '@eos/domain/sessions/session-state';
 import { OpenIDConnectClientFactory } from '@eos/infrastructure/open-id-connect/factory';
 import { OpenIDConnectClient } from '@eos/domain/open-id-connect/client';
-import { SessionState } from "@eos/domain/sessions/session-state";
 import { DurableObjectStateSessionRepository } from '@eos/infrastructure/persistence/durable-objects/session-repository';
 import { SessionRepository } from '@eos/domain/sessions/session-repository';
+import { time } from '@eos/domain/common/time';
 
 /** A Durable Object's behavior is defined in an exported Javascript class */
 export class DurableAuthSessionObject extends DurableObject<Env> implements AuthSessionManager {
@@ -15,6 +15,7 @@ export class DurableAuthSessionObject extends DurableObject<Env> implements Auth
 	private readonly ttlMs: number;
 	private readonly jwks: JWKSet | null = null;
 	private readonly sessionRepository: SessionRepository;
+	private readonly expirationBuffer = 60 * time.Second;
 
 	/**
 	 * The constructor is invoked once upon creation of the Durable Object, i.e. the first call to
@@ -40,17 +41,20 @@ export class DurableAuthSessionObject extends DurableObject<Env> implements Auth
 	 * @param name - The name provided to a Durable Object instance from a Worker
 	 * @returns The greeting to be sent back to the Worker
 	 */
-	async authenticate(sessionId: string): Promise<SessionState | undefined> {
+	async authenticate(sessionId: string): Promise<ISessionState | undefined> {
 		const rawCredentials = await this.sessionRepository.findById(sessionId);
 
 		if (!rawCredentials) {
 			return undefined;
 		}
 
-		const credentials = new SessionCredentials(rawCredentials);
+		const credentials = new HydratingSessionState(rawCredentials);
 
-		const { accessToken, refreshToken } = credentials.parsed();
-		if (typeof accessToken.payload?.exp !== 'number' || (accessToken.payload?.exp ?? 0) < Date.now()) {
+		const { accessToken, refreshToken } = credentials.parsed;
+
+		const expirationDate = (typeof accessToken.exp !== 'number' || !accessToken?.exp) ? 0 : accessToken.exp;
+
+		if ((Date.now() - this.expirationBuffer) > (expirationDate * time.Second)) {
 			const newRawCredentials = await this.openIDConnectClient.refresh({ refresh_token: refreshToken });
 
 			await this.sessionRepository.upsert(sessionId, newRawCredentials);

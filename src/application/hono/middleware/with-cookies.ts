@@ -29,7 +29,7 @@ export class WithCookiesMiddleware extends Middleware {
 			);
 		}
 
-		next();
+		await next();
 	}
 }
 

@@ -12,16 +12,16 @@ export interface IEnrichedSessionState<AccessTokenPayload, IdTokenPayload> {
 	readonly idToken?: JWTPayload & IdTokenPayload;
 }
 
-export class SessionState<AccessTokenPayload = unknown, IdTokenPayload = unknown> {
+export class HydratingSessionState<AccessTokenPayload extends object = object, IdTokenPayload extends object = object> {
 	private _parsed: IEnrichedSessionState<AccessTokenPayload, IdTokenPayload> | null = null;
 
 	public constructor(public readonly raw: ISessionState) {}
 
 	public get parsed(): IEnrichedSessionState<AccessTokenPayload, IdTokenPayload> {
-		return (this._parsed ??= this.enriched());
+		return (this._parsed ??= this.hydrate());
 	}
 
-	private enriched(): IEnrichedSessionState<AccessTokenPayload, IdTokenPayload> {
+	private hydrate(): IEnrichedSessionState<AccessTokenPayload, IdTokenPayload> {
 		return {
 			accessToken: decodeJwt(this.raw.accessToken),
 			refreshToken: this.raw.refreshToken,

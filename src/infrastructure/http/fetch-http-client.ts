@@ -7,8 +7,6 @@ import {
 	HttpMethodType,
 	HttpOptions,
 	HttpResponse,
-	ResponseFormat,
-	ResponseFormatType,
 } from './http-client';
 
 export type BodylessHttpOptions = Omit<HttpOptions, 'body'>;

@@ -7,13 +7,13 @@
  */
 
 import { z } from 'zod';
-import { SessionState } from '../sessions/session-state';
+import { ISessionState } from '../sessions/session-state';
 import { EnumConstType, enumValues } from './types';
 
 export interface OpenIDConnectClient {
 	getAuthorizationUrl(options: Partial<AuthorizationUrlOptions>): string;
-	exchangeCode(options: ExchangeCodeOptions): Promise<SessionState>;
-	refresh(options: RefreshOptions): Promise<SessionState>;
+	exchangeCode(options: ExchangeCodeOptions): Promise<ISessionState>;
+	refresh(options: RefreshOptions): Promise<ISessionState>;
 }
 
 export interface AuthorizationUrlOptions extends Record<string, any> {

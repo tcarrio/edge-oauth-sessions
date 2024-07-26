@@ -1,14 +1,14 @@
 import { SessionRepository } from '@eos/domain/sessions/session-repository';
-import { SessionState } from '@eos/domain/sessions/session-state';
+import { ISessionState } from '@eos/domain/sessions/session-state';
 
 export class DurableObjectStateSessionRepository implements SessionRepository {
 	constructor(private readonly ctx: DurableObjectState) {}
 
-	async findById(id: string): Promise<SessionState | null> {
-		return (await this.ctx.storage.get<SessionState>(id)) ?? null;
+	async findById(id: string): Promise<ISessionState | null> {
+		return (await this.ctx.storage.get<ISessionState>(id)) ?? null;
 	}
 
-	async upsert(id: string, session: SessionState): Promise<void> {
+	async upsert(id: string, session: ISessionState): Promise<void> {
 		await this.ctx.storage.put(id, session);
 	}
 

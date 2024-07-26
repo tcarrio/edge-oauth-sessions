@@ -7,9 +7,10 @@ import {
 	RefreshOptions,
 } from '@eos/domain/open-id-connect/client';
 import { OAuthCodeExchangeResponseSchema } from '@eos/domain/open-id-connect/code-exchange';
-import { BaseOIDCOptions, BaseOIDCOptionsSchema } from '@eos/domain/open-id-connect/types';
-import { SessionState } from '@eos/domain/sessions/session-state';
+import { BaseOIDCOptions, BaseOIDCOptionsSchema, EnvBaseOIDCOptionsSchema } from '@eos/domain/open-id-connect/types';
+import { ISessionState } from '@eos/domain/sessions/session-state';
 import { HttpClient, HttpOptions, ResponseFormat } from '../http/http-client';
+import { mapperForMapping } from '../common/env-options-mapper';
 
 const RefreshResponseBodySchema = z.object({
 	access_token: z.string(),
@@ -42,7 +43,7 @@ export class GenericOIDCClient implements OpenIDConnectClient {
 		clientSecret = this.options.clientSecret,
 		redirectUri = this.options.authorization.redirect_uri,
 		...options
-	}: ExchangeCodeOptions): Promise<SessionState> {
+	}: ExchangeCodeOptions): Promise<ISessionState> {
 		const requestOptions = {
 			headers: { 'content-type': 'application/x-www-form-urlencoded' },
 			data: new URLSearchParams({
@@ -76,7 +77,7 @@ export class GenericOIDCClient implements OpenIDConnectClient {
 		};
 	}
 
-	async refresh({ refresh_token, client_id, ...options }: RefreshOptions): Promise<SessionState> {
+	async refresh({ refresh_token, client_id, ...options }: RefreshOptions): Promise<ISessionState> {
 		const requestOptions: HttpOptions = {
 			headers: { 'content-type': 'application/x-www-form-urlencoded' },
 			responseType: ResponseFormat.JSON,
@@ -113,6 +114,22 @@ export const GenericOIDCOptionsSchema = BaseOIDCOptionsSchema.extend({
 	baseURL: z.string(),
 	issuerBaseURL: z.string(),
 	secret: z.string(),
+});
+
+export const EnvGenericOIDCOptionsSchema = EnvBaseOIDCOptionsSchema.extend({
+	OAUTH_BASE_URL: z.string(),
+	OAUTH_ISSUER_BASE_URL: z.string(),
+	OAUTH_SECRET: z.string(),
+});
+
+export const mapper = mapperForMapping<GenericOIDCOptions, typeof EnvGenericOIDCOptionsSchema>({
+	OAUTH_AUTHORIZATION: 'authorization',
+	OAUTH_BASE_URL: 'baseURL',
+	OAUTH_CLIENT_ID: 'clientId',
+	OAUTH_CLIENT_SECRET: 'clientSecret',
+	OAUTH_ISSUER_BASE_URL: 'issuerBaseURL',
+	OAUTH_ISSUER_URL: 'issuerUrl',
+	OAUTH_SECRET: 'secret',
 });
 
 export interface GenericOIDCOptions extends BaseOIDCOptions {
