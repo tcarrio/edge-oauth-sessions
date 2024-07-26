@@ -12,10 +12,15 @@
         devShells = {
           default = pkgs.mkShell {
             packages = with pkgs; [
+                # dev tools
                 git
+                moon
+
+                # node
                 nodejs_20
+
+                # iac
 								nodePackages.wrangler
-                yarn
                 opentofu
             ];
 
