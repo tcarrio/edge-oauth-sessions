@@ -30,10 +30,14 @@ JWKS_CACHE_TIME_SECONDS = 600 # seconds
 
 ### OAuth config
 OAUTH_STRATEGY = "auth0" # https://github.com/tcarrio/edge-oauth-sessions/blob/a2287bc5b58af1e4efd9fdadbdbc97209a3f9eef/src/infrastructure/open-id-connect/factory.ts#L9-L13
-# OAUTH_REFRESH_URI = ""
 OAUTH_REDIRECT_URI = "https://your-app.example.test/auth/callback"
 OAUTH_CLIENT_ID = ""
 OAUTH_CLIENT_SECRET = ""
+OAUTH_AUTHORIZATION_URI = "https://your-tenant.auth0.com/authorize"
+OAUTH_DOMAIN = "your-tenant.auth0.com"
+OAUTH_REFRESH_URI = "https://your-tenant.auth0.com/oauth/token"
+OAUTH_ISSUER_URL = "https://your-tenant.auth0.com"
+OAUTH_AUTHORIZATION = "{}"
 # OAUTH_REFRESH_MAX_RETRIES = 5
 
 ### Neon provider
