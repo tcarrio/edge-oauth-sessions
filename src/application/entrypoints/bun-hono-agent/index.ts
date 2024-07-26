@@ -6,7 +6,6 @@ import { AuthSessionMiddleware } from '@eos/application/hono/middleware/auth-ses
 import { WithCookiesMiddleware } from '@eos/application/hono/middleware/with-cookies';
 import { memoize } from '@eos/domain/functional/memoize';
 import { assertZ } from '@eos/domain/invariance';
-import { AuthSessionManagerFactoryFactory } from '@eos/infrastructure/cloudflare/sessions/auth-session-manager';
 import { WorkerCryptoUuidFactory } from '@eos/infrastructure/cloudflare/uuid/WorkerCryptoUuidFactory';
 import { RouterConfigFactory } from '@eos/infrastructure/hono/router/config';
 import { DynamicProxyConfigFactory } from '@eos/infrastructure/hono/router/dynamic-proxy-config-factory';
@@ -15,15 +14,19 @@ import { ResponseFormat } from '@eos/infrastructure/http/http-client';
 import { OpenIDConnectConfigFactory } from '@eos/infrastructure/open-id-connect/config';
 import { OpenIDConnectClientFactory } from '@eos/infrastructure/open-id-connect/factory';
 import { SqliteConfigFactory } from '@eos/infrastructure/persistence/sqlite/config';
-import { SqliteCookieSecretRepository } from '@eos/infrastructure/persistence/sqlite/cookie-secret-repository';
+import { SqliteCookieSecretRepository } from '@eos/infrastructure/persistence/bun/cookie-secret-repository';
 import Database from 'bun:sqlite';
 import { Hono } from 'hono';
 import { z } from 'zod';
+import { AuthSessionManagerFactory } from '@eos/domain/sessions/auth-session-manager';
+import { SqliteSessionRepository } from '@eos/infrastructure/persistence/bun/session-repository';
+import { AuthSessionManager } from '@eos/infrastructure/common/auth-session-manager';
+import { DateClockService } from '@eos/infrastructure/common/date-clock-service';
+import { AssuredResources } from '@eos/domain/common/resources';
 
 type NodeEnv = any;
 
 const getRouter = memoize(async (env: NodeEnv): Promise<Hono> => {
-	const authSessionManagerFactory = AuthSessionManagerFactoryFactory.forEnv(env);
 	const routerConfig = RouterConfigFactory.forEnv(env);
 	const oidcConfig = OpenIDConnectConfigFactory.forEnv(env);
 	const proxyConfig = DynamicProxyConfigFactory.forEnv(env);
@@ -31,8 +34,10 @@ const getRouter = memoize(async (env: NodeEnv): Promise<Hono> => {
 	const sqliteConfig = SqliteConfigFactory.forEnv(env);
 	const sqliteDb = new Database(sqliteConfig.file, { create: sqliteConfig.createIfNotExists });
 	const cookieSecretRepository = new SqliteCookieSecretRepository(sqliteDb, 'cookie_secrets' /* TODO: env config */)
+	const sessionRepository = new SqliteSessionRepository(sqliteDb, 'sessions' /* TODO: env config */);
 
-	await Promise.all([cookieSecretRepository.prepare()]);
+	// ensure all repositories are ready to roll
+	await AssuredResources.prepare(cookieSecretRepository, sessionRepository);
 
 	const uuidFactory = WorkerCryptoUuidFactory.instance();
 
@@ -40,6 +45,10 @@ const getRouter = memoize(async (env: NodeEnv): Promise<Hono> => {
 	const oidcAgentHttpClient = new FetchHttpClient({ baseUrl: '', followRedirects: 0, responseFormat: ResponseFormat.JSON, })
 	const oidcClient = new OpenIDConnectClientFactory(oidcAgentHttpClient).forEnv(env);
 
+	const authSessionManager = new AuthSessionManager(sessionRepository, oidcClient, new DateClockService());
+	const authSessionManagerFactory: AuthSessionManagerFactory = {
+		forId: () => authSessionManager,
+	};
 
 	// TODO: Standard Hono factory to consolidate various feature sets like Cloudflare middleware along with the core components
 	// initialize all middlewares and return singleton router as necessary
@@ -63,8 +72,7 @@ const ServerOptionsSchema = z.object({
 	BUN_SERVER_HOST: z.string().regex(/^[a-zA-Z0-9-]+$/),
 	BUN_SERVER_PORT: z.string().regex(/^[1-9][0-9]+$/),
 	NODE_ENV: z.enum(['production', 'development']).optional(),
-
-})
+});
 
 assertZ(ServerOptionsSchema, Bun.env, 'Invalid server options from environment');
 
@@ -79,4 +87,4 @@ Bun.serve({
 	reusePort: false, // disallow overlapping port maps
 });
 
-console.log('Server started... waiting for requests...');
+console.log(`Server started at '${Bun.env.BUN_SERVER_HOST}:${Bun.env.BUN_SERVER_PORT}'. Waiting for requests...`);

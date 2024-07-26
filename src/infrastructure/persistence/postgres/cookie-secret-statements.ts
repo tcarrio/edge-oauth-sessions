@@ -8,6 +8,16 @@ const C = Columns;
 
 export class PostgresStatementTemplates {
 	constructor(private readonly table: string) {}
+	get ensureTables() {
+		return `create table if not exists ${this.table} (
+				${C.Id}        text NOT NULL,
+				${C.Secret}    text NOT NULL,
+				${C.CreatedAt} timestamp NOT NULL,
+				${C.ExpiresAt} timestamp,
+				CONSTRAINT     ${this.table} PRIMARY KEY(${C.Id})
+			)`
+	}
+
 	get findById() {
 		return `SELECT * FROM ${this.table} WHERE id = ?1`;
 	}

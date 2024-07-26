@@ -18,6 +18,7 @@ import { OpenIDConnectConfigFactory } from '@eos/infrastructure/open-id-connect/
 import { OpenIDConnectClientFactory } from '@eos/infrastructure/open-id-connect/factory';
 import { D1CookieSecretRepository } from '@eos/infrastructure/persistence/d1/cookie-secret-repository';
 import { Hono } from 'hono';
+import { AssuredResources } from '@eos/domain/common/resources';
 
 export { DurableAuthSessionObject } from '@eos/infrastructure/cloudflare/durables/DurableAuthSessionObject';
 
@@ -34,7 +35,7 @@ export { DurableAuthSessionObject } from '@eos/infrastructure/cloudflare/durable
  * Learn more at https://developers.cloudflare.com/durable-objects
  */
 
-const getRouter = memoize((env: Env): Hono => {
+const getRouter = memoize(async (env: Env): Promise<Hono> => {
 	const authSessionManagerFactory = AuthSessionManagerFactoryFactory.forEnv(env);
 	const routerConfig = RouterConfigFactory.forEnv(env);
 	const oidcConfig = OpenIDConnectConfigFactory.forEnv(env);
@@ -47,6 +48,9 @@ const getRouter = memoize((env: Env): Hono => {
 	const oidcClient = new OpenIDConnectClientFactory(oidcAgentHttpClient).forEnv(env);
 
 	const cookieSecretRepository = new D1CookieSecretRepository(env.D1_DATABASE, env.D1_COOKIE_SECRET_TABLE_NAME);
+
+	// ensure all repositories are ready to roll
+	await AssuredResources.prepare(cookieSecretRepository);
 
 	// initialize all middlewares and return singleton router as necessary
 	const router = new Hono();
@@ -82,6 +86,8 @@ export default {
 	 * @returns The response to be sent back to the client
 	 */
 	async fetch(request: Request, env: Env, ctx): Promise<Response> {
-		return getRouter(env).fetch(request, env, ctx);
+		const router = await getRouter(env);
+
+		return router.fetch(request, env, ctx);
 	},
 } satisfies ExportedHandler<Env>;

@@ -9,26 +9,22 @@ export class D1CookieSecretRepository implements CookieSecretRepository {
 	}
 
 	async findById(id: string): Promise<CookieSecretState | null> {
-		const statement = this.db.prepare(this.statementTemplates.findById).bind(id);
-
-		return await statement.first();
+		return await this.db.prepare(this.statementTemplates.findById).bind(id).first();
 	}
 
 	async upsert(id: string, {value, createdAt,expiresAt}: CookieSecretState): Promise<void> {
-		const statement = this.db.prepare(this.statementTemplates.upsert).bind(id, value, createdAt, expiresAt);
-
-		await statement.run();
+		await this.db.prepare(this.statementTemplates.upsert).bind(id, value, createdAt, expiresAt).run();
 	}
 
 	async delete(id: string): Promise<void> {
-		const statement = this.db.prepare(this.statementTemplates.delete).bind(id);
-
-		await statement.run();
+		await this.db.prepare(this.statementTemplates.delete).bind(id).run();
 	}
 
 	async expire(time = Date.now()): Promise<void> {
-		const statement = this.db.prepare(this.statementTemplates.expire).bind(time);
+		await this.db.prepare(this.statementTemplates.expire).bind(time).run();
+	}
 
-		await statement.run();
+	async prepare(): Promise<void> {
+		await this.db.prepare(this.statementTemplates.ensureTables).run();
 	}
 }

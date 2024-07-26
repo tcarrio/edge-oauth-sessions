@@ -41,6 +41,7 @@ export class NeonSessionRepository implements SessionRepository {
 			idToken: data.id_token,
 		};
 	}
+
 	async upsert(id: string, session: ISessionState): Promise<void> {
 		const { accessToken, refreshToken, idToken } = session;
 
@@ -52,11 +53,23 @@ export class NeonSessionRepository implements SessionRepository {
 			[id, accessToken, refreshToken, idToken]
 		);
 	}
+
 	async delete(id: string): Promise<void> {
 		await this.service.getClient().query(
 			`delete from ${this.config.sessionsTable}
 			where session_id = $1`,
 			[id]
 		);
+	}
+
+	async prepare(): Promise<void> {
+		await this.service.getClient().query(
+			`create table if not exists ${this.config.sessionsTable} (
+				session_id    text NOT NULL,
+				access_token  text NOT NULL,
+				refresh_token text NOT NULL,
+				id_token      text,
+				CONSTRAINT    ${this.config.sessionsTable} PRIMARY KEY(session_id)
+			)`);
 	}
 }

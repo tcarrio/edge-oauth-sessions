@@ -1,21 +1,15 @@
+import { AuthSessionManager as IAuthSessionManager } from '@eos/domain/sessions/auth-session-manager';
+import { ISessionState } from '@eos/domain/sessions/session-state';
+import { AuthSessionManager } from '@eos/infrastructure/common/auth-session-manager';
+import { DateClockService } from '@eos/infrastructure/common/date-clock-service';
+import { OpenIDConnectClientFactory } from '@eos/infrastructure/open-id-connect/factory';
+import { DurableObjectStateSessionRepository } from '@eos/infrastructure/persistence/durable-objects/session-repository';
 import { DurableObject } from 'cloudflare:workers';
 import { Env } from "../@types/env";
-import { JWKSet, jwksSetFactory } from '@eos/domain/open-id-connect/jwks';
-import { AuthSessionManager } from '@eos/domain/sessions/auth-session-manager';
-import { HydratingSessionState, ISessionState } from '@eos/domain/sessions/session-state';
-import { OpenIDConnectClientFactory } from '@eos/infrastructure/open-id-connect/factory';
-import { OpenIDConnectClient } from '@eos/domain/open-id-connect/client';
-import { DurableObjectStateSessionRepository } from '@eos/infrastructure/persistence/durable-objects/session-repository';
-import { SessionRepository } from '@eos/domain/sessions/session-repository';
-import { time } from '@eos/domain/common/time';
 
 /** A Durable Object's behavior is defined in an exported Javascript class */
-export class DurableAuthSessionObject extends DurableObject<Env> implements AuthSessionManager {
-	private readonly openIDConnectClient: OpenIDConnectClient;
-	private readonly ttlMs: number;
-	private readonly jwks: JWKSet | null = null;
-	private readonly sessionRepository: SessionRepository;
-	private readonly expirationBuffer = 60 * time.Second;
+export class DurableAuthSessionObject extends DurableObject<Env> implements IAuthSessionManager {
+	private delegatedAuthSessionManager: IAuthSessionManager;
 
 	/**
 	 * The constructor is invoked once upon creation of the Durable Object, i.e. the first call to
@@ -24,48 +18,37 @@ export class DurableAuthSessionObject extends DurableObject<Env> implements Auth
 	 * @param ctx - The interface for interacting with Durable Object state
 	 * @param env - The interface to reference bindings declared in wrangler.toml
 	 */
-	constructor(ctx: DurableObjectState, env: Env) {
+	constructor(ctx: DurableObjectState, env: Env, private immutable: boolean = true) {
 		super(ctx, env);
 
-		this.ttlMs = env.JWKS_CACHE_TIME_SECONDS * 1000;
-		this.jwks = jwksSetFactory(env.JWKS_URI, { cacheMaxAge: this.ttlMs });
+		const sessionRepository = new DurableObjectStateSessionRepository(ctx);
+		const openIDConnectClient = OpenIDConnectClientFactory.withFetchClient().forEnv(env);
+		const clock = new DateClockService();
 
-		this.openIDConnectClient = OpenIDConnectClientFactory.withFetchClient().forEnv(env);
-		this.sessionRepository = new DurableObjectStateSessionRepository(ctx);
+		this.delegatedAuthSessionManager = new AuthSessionManager(
+			sessionRepository,
+			openIDConnectClient,
+			clock,
+		);
 	}
 
 	/**
-	 * The Durable Object exposes an RPC method sayHello which will be invoked when when a Durable
-	 *  Object instance receives a request from a Worker via the same method invocation on the stub
+	 * To support testing scenarios, we need to override the ASM to validate with mocks
+	 * 
+	 * This method is disabled during implicit construction via Cloudflare Workers by the
+	 * `immutable` property
 	 *
-	 * @param name - The name provided to a Durable Object instance from a Worker
-	 * @returns The greeting to be sent back to the Worker
+	 * @param {AuthSessionManager} authSessionManager 
 	 */
-	async authenticate(sessionId: string): Promise<ISessionState | undefined> {
-		const rawCredentials = await this.sessionRepository.findById(sessionId);
+	public setAuthSessionManager(authSessionManager: AuthSessionManager): void {
+		if (!this.immutable) this.delegatedAuthSessionManager = authSessionManager;
+	}
 
-		if (!rawCredentials) {
-			return undefined;
-		}
-
-		const credentials = new HydratingSessionState(rawCredentials);
-
-		const { accessToken, refreshToken } = credentials.parsed;
-
-		const expirationDate = (typeof accessToken.exp !== 'number' || !accessToken?.exp) ? 0 : accessToken.exp;
-
-		if ((Date.now() - this.expirationBuffer) > (expirationDate * time.Second)) {
-			const newRawCredentials = await this.openIDConnectClient.refresh({ refresh_token: refreshToken });
-
-			await this.sessionRepository.upsert(sessionId, newRawCredentials);
-
-			return newRawCredentials;
-		}
-
-		return credentials.raw;
+	async authenticate(sessionId: string): Promise<ISessionState | void> {
+		return this.delegatedAuthSessionManager.authenticate(sessionId);
 	}
 
 	async logout(sessionId: string): Promise<void> {
-		this.sessionRepository.delete(sessionId);
+		return this.delegatedAuthSessionManager.logout(sessionId);
 	}
 }

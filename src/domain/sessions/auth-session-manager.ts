@@ -1,7 +1,7 @@
 import { ISessionState } from './session-state';
 
 export interface AuthSessionManager {
-	authenticate(sessionId: string): Promise<ISessionState | undefined>;
+	authenticate(sessionId: string): Promise<ISessionState | void>;
 	logout(sessionId: string): Promise<void>;
 }
 

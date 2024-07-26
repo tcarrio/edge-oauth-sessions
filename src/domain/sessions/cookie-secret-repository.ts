@@ -3,6 +3,7 @@ export interface CookieSecretRepository {
 	upsert(id: string, state: CookieSecretState): Promise<void>;
 	delete(id: string): Promise<void>;
 	expire(): Promise<void>;
+	prepare(): Promise<void>;
 }
 
 export interface CookieSecretState {

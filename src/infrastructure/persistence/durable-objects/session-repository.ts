@@ -15,4 +15,8 @@ export class DurableObjectStateSessionRepository implements SessionRepository {
 	async delete(id: string): Promise<void> {
 		this.ctx.storage.delete(id);
 	}
+
+	async prepare(): Promise<void> {
+		// no-op, storage is implicitly ready
+	}
 }
