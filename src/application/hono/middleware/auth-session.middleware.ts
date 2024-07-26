@@ -17,7 +17,7 @@ export class AuthSessionMiddleware extends Middleware {
 	async handle(ctx: WithCookies, next: Next): Promise<void> {
 		const sessionId = ctx.var.cookies[AuthSessionMiddleware.AUTH_SESSION_KEY];
 		if (!sessionId) {
-			return next();
+			return await next();
 		}
 
 		const authSessionManager = this.authSessionManagerFactory.forId(sessionId);
