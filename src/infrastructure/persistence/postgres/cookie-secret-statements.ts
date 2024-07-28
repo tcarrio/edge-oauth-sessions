@@ -1,8 +1,8 @@
 const Columns = {
-	Id: 'id',
-	Secret: 'secret',
-	CreatedAt: 'created_at',
-	ExpiresAt: 'expires_at',
+	Id: "id",
+	Secret: "secret",
+	CreatedAt: "created_at",
+	ExpiresAt: "expires_at",
 } as const;
 const C = Columns;
 
@@ -15,7 +15,7 @@ export class PostgresStatementTemplates {
 				${C.CreatedAt} timestamp NOT NULL,
 				${C.ExpiresAt} timestamp,
 				CONSTRAINT     ${this.table} PRIMARY KEY(${C.Id})
-			)`
+			)`;
 	}
 
 	get findById() {

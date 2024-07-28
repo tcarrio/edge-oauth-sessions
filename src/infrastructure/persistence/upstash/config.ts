@@ -6,7 +6,10 @@ export class UpstashRedisConfig {
 		url: z.string().url(),
 	});
 
-	constructor(public readonly token: string, public readonly url: string) {}
+	constructor(
+		public readonly token: string,
+		public readonly url: string,
+	) {}
 
 	from(object: object): UpstashRedisConfig {
 		const { token, url } = UpstashRedisConfig.schema.parse(object);

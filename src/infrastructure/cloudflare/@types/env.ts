@@ -1,4 +1,4 @@
-import { DurableAuthSessionObject } from "../durables/DurableAuthSessionObject";
+import type { DurableAuthSessionObject } from "../durables/DurableAuthSessionObject";
 
 /**
  * Associate bindings declared in wrangler.toml with the TypeScript type system

@@ -1,4 +1,4 @@
-import { Context } from "hono";
+import type { Context } from "hono";
 
 export abstract class StatefulHandler implements IStatefulHandler {
 	abstract handle(ctx: Context): Promise<Response>;
@@ -12,6 +12,4 @@ export interface IStatefulHandler {
 	handle: Handler;
 }
 
-export interface Handler {
-	(ctx: Context): Promise<Response>;
-}
+export type Handler = (ctx: Context) => Promise<Response>;

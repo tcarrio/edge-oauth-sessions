@@ -1,5 +1,5 @@
-import { SessionRepository } from '@eos/domain/sessions/session-repository';
-import { ISessionState } from '@eos/domain/sessions/session-state';
+import type { SessionRepository } from "@eos/domain/sessions/session-repository";
+import type { ISessionState } from "@eos/domain/sessions/session-state";
 
 export class DurableObjectStateSessionRepository implements SessionRepository {
 	constructor(private readonly ctx: DurableObjectState) {}

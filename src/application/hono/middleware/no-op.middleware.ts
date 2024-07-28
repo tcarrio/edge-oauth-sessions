@@ -1,6 +1,6 @@
-import { IRequest } from 'itty-router';
-import { Middleware } from './middleware';
-import { Context, Next } from 'hono';
+import { IRequest } from "itty-router";
+import { Middleware } from "./middleware";
+import type { Context, Next } from "hono";
 
 /**
  * An example, zero-operation middleware

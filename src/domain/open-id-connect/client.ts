@@ -6,9 +6,9 @@
  * @see {@link https://tools.ietf.org/html/rfc6749}
  */
 
-import { z } from 'zod';
-import { ISessionState } from '../sessions/session-state';
-import { EnumConstType, enumValues } from './types';
+import { z } from "zod";
+import type { ISessionState } from "../sessions/session-state";
+import { type EnumConstType, enumValues } from "./types";
 
 export interface OpenIDConnectClient {
 	getAuthorizationUrl(options: Partial<AuthorizationUrlOptions>): string;
@@ -16,7 +16,7 @@ export interface OpenIDConnectClient {
 	refresh(options: RefreshOptions): Promise<ISessionState>;
 }
 
-export interface AuthorizationUrlOptions extends Record<string, any> {
+export interface AuthorizationUrlOptions extends Record<string, unknown> {
 	/**
 	 * REQUIRED. OpenID Connect requests MUST contain the openid scope value. If
 	 * the openid scope value is not present, the behavior is entirely
@@ -60,7 +60,7 @@ export interface AuthorizationUrlOptions extends Record<string, any> {
 
 	// PKCE
 	code_challenge?: string;
-	code_challenge_method?: 'S256';
+	code_challenge_method?: "S256";
 
 	/**
 	 * OPTIONAL. String value used to associate a Client session with an ID Token,
@@ -158,11 +158,11 @@ export const ResponseType = {
 	/**
 	 * The Authorization Code flow
 	 */
-	Code: 'code',
+	Code: "code",
 	/**
 	 * The Client Credentials flow
 	 */
-	ClientCredentials: 'client_credentials',
+	ClientCredentials: "client_credentials",
 } as const;
 
 export type OIDCScopeType = EnumConstType<typeof OIDCScope>;
@@ -170,38 +170,42 @@ export const OIDCScope = {
 	/**
 	 * Requests access to the End-User's OpenID information. The OpenID scope value MUST be used when the OpenID Connect requests are used.
 	 */
-	OpenId: 'openid',
+	OpenId: "openid",
 	/**
 	 * This scope value requests access to refreshing the token.
 	 */
-	Offline: 'offline',
+	Offline: "offline",
 	/**
 	 * This scope value requests access to the End-User's default profile Claims, which are: name, family_name, given_name, middle_name, nickname, preferred_username, profile, picture, website, gender, birthdate, zoneinfo, locale, and updated_at.
 	 */
-	Profile: 'profile',
+	Profile: "profile",
 	/**
 	 * This scope value requests access to the email and email_verified Claims.
 	 */
-	Email: 'email',
+	Email: "email",
 	/**
 	 * This scope value requests access to the address Claim.
 	 */
-	Address: 'address',
+	Address: "address",
 	/**
 	 * This scope value requests access to the phone_number and phone_number_verified Claims.
 	 */
-	Phone: 'phone',
+	Phone: "phone",
 } as const;
 export const OIDCScopeValues = enumValues(OIDCScope);
 
 export type ScreenHintType = EnumConstType<typeof ScreenHint>;
 export const ScreenHint = {
-	SignUp: 'SignUp',
-	SignIn: 'SignIn',
+	SignUp: "SignUp",
+	SignIn: "SignIn",
 } as const;
 
 export const AuthorizationUrlOptionsSchema = z.object({
-	scope: z.union([z.string(), z.array(z.string()), z.array(z.union([z.enum(enumValues(OIDCScope)), z.string()]))]),
+	scope: z.union([
+		z.string(),
+		z.array(z.string()),
+		z.array(z.union([z.enum(enumValues(OIDCScope)), z.string()])),
+	]),
 	response_type: z.enum(enumValues(ResponseType)),
 	client_id: z.string(),
 	redirect_uri: z.string().url(),
@@ -209,7 +213,7 @@ export const AuthorizationUrlOptionsSchema = z.object({
 
 	// PKCE
 	code_challenge: z.string().optional(),
-	code_challenge_method: z.enum(['S256']).optional(),
+	code_challenge_method: z.enum(["S256"]).optional(),
 
 	nonce: z.string().optional(),
 	display: z.string().optional(),
@@ -235,19 +239,19 @@ export const Display = {
 	/**
 	 * The Authorization Server SHOULD display the authentication and consent UI consistent with a full User Agent page view. If the display parameter is not specified, this is the default display mode.
 	 */
-	Page: 'page',
+	Page: "page",
 	/**
 	 * The Authorization Server SHOULD display the authentication and consent UI consistent with a popup User Agent window. The popup User Agent window should be of an appropriate size for a login-focused dialog and should not obscure the entire window that it is popping up over.
 	 */
-	Popup: 'popup',
+	Popup: "popup",
 	/**
 	 * The Authorization Server SHOULD display the authentication and consent UI consistent with a device that leverages a touch interface.
 	 */
-	Touch: 'touch',
+	Touch: "touch",
 	/**
 	 * The Authorization Server SHOULD display the authentication and consent UI consistent with a "feature phone" type display.
 	 */
-	Wap: 'wap',
+	Wap: "wap",
 } as const;
 
 export type PromptType = EnumConstType<typeof Prompt>;
@@ -255,19 +259,19 @@ export const Prompt = {
 	/**
 	 * The Authorization Server MUST NOT display any authentication or consent user interface pages. An error is returned if an End-User is not already authenticated or the Client does not have pre-configured consent for the requested Claims or does not fulfill other conditions for processing the request. The error code will typically be login_required, interaction_required, or another code defined in Section 3.1.2.6. This can be used as a method to check for existing authentication and/or consent.
 	 */
-	None: 'none',
+	None: "none",
 	/**
 	 * The Authorization Server SHOULD prompt the End-User for reauthentication. If it cannot reauthenticate the End-User, it MUST return an error, typically login_required.
 	 */
-	Login: 'login',
+	Login: "login",
 	/**
 	 * The Authorization Server SHOULD prompt the End-User for consent before returning information to the Client. If it cannot obtain consent, it MUST return an error, typically consent_required.
 	 */
-	Consent: 'consent',
+	Consent: "consent",
 	/**
 	 * The Authorization Server SHOULD prompt the End-User to select a user account. This enables an End-User who has multiple accounts at the Authorization Server to select amongst the multiple accounts that they might have current sessions for. If it cannot obtain an account selection choice made by the End-User, it MUST return an error, typically account_selection_required. The prompt parameter can be used by the Client to make sure that the End-User is still present for the current session or to bring attention to the request. If this parameter contains none with any other value, an error is returned. If an OP receives a prompt value outside the set defined above that it does not understand, it MAY return an error or it MAY ignore it; in practice, not returning errors for not-understood values will help facilitate phasing in extensions using new prompt values.
 	 */
-	SelectAccount: 'select_account',
+	SelectAccount: "select_account",
 } as const;
 
 export interface SuccessAuthenticationResponseParameters {
@@ -314,33 +318,35 @@ export interface ErrorAuthenticationResponseParameters {
 	state: string;
 }
 
-export type AuthenticationErrorCodeType = EnumConstType<typeof AuthenticationErrorCode>;
+export type AuthenticationErrorCodeType = EnumConstType<
+	typeof AuthenticationErrorCode
+>;
 export const AuthenticationErrorCode = {
 	/**
 	 * The request is missing a required parameter, includes an
 	 * invalid parameter value, includes a parameter more than
 	 * once, or is otherwise malformed.
 	 */
-	InvalidRequest: 'invalid_request',
+	InvalidRequest: "invalid_request",
 	/**
 	 * The client is not authorized to request an authorization
 	 * code using this method.
 	 */
-	UnauthorizedClient: 'unauthorized_client',
+	UnauthorizedClient: "unauthorized_client",
 	/**
 	 * The resource owner or authorization server denied the
 	 * request.
 	 */
-	AccessDenied: 'access_denied',
+	AccessDenied: "access_denied",
 	/**
 	 * The authorization server does not support obtaining an
 	 * authorization code using this method.
 	 */
-	UnsupportedResponseType: 'unsupported_response_type',
+	UnsupportedResponseType: "unsupported_response_type",
 	/**
 	 * The requested scope is invalid, unknown, or malformed.
 	 */
-	InvalidScope: 'invalid_scope',
+	InvalidScope: "invalid_scope",
 	/**
 	 * The authorization server encountered an unexpected
 	 * condition that prevented it from fulfilling the request.
@@ -348,7 +354,7 @@ export const AuthenticationErrorCode = {
 	 * Error HTTP status code cannot be returned to the client
 	 * via an HTTP redirect.)
 	 */
-	ServerError: 'server_error',
+	ServerError: "server_error",
 	/**
 	 * The authorization server is currently unable to handle
 	 * the request due to a temporary overloading or maintenance
@@ -356,7 +362,7 @@ export const AuthenticationErrorCode = {
 	 * Service Unavailable HTTP status code cannot be returned
 	 * to the client via an HTTP redirect.)
 	 */
-	TemporarilyUnavailable: 'temporarily_unavailable',
+	TemporarilyUnavailable: "temporarily_unavailable",
 	/**
 	 * The Authorization Server requires End-User interaction of some form to
 	 * proceed. This error MAY be returned when the prompt parameter value in
@@ -364,14 +370,14 @@ export const AuthenticationErrorCode = {
 	 * cannot be completed without displaying a user interface for End-User
 	 * interaction.
 	 */
-	InteractionRequired: 'interaction_required',
+	InteractionRequired: "interaction_required",
 	/**
 	 * The Authorization Server requires End-User authentication. This error
 	 * MAY be returned when the prompt parameter value in the Authentication
 	 * Request is none, but the Authentication Request cannot be completed
 	 * without displaying a user interface for End-User authentication.
 	 */
-	LoginRequired: 'login_required',
+	LoginRequired: "login_required",
 	/**
 	 * The End-User is REQUIRED to select a session at the Authorization Server.
 	 * The End-User MAY be authenticated at the Authorization Server with
@@ -381,37 +387,37 @@ export const AuthenticationErrorCode = {
 	 * completed without displaying a user interface to prompt for a session to
 	 * use.
 	 */
-	AccountSelectionRequired: 'account_selection_required',
+	AccountSelectionRequired: "account_selection_required",
 	/**
 	 * The Authorization Server requires End-User consent. This error MAY be
 	 * returned when the prompt parameter value in the Authentication Request is
 	 * none, but the Authentication Request cannot be completed without displaying
 	 * a user interface for End-User consent.
 	 */
-	ConsentRequired: 'consent_required',
+	ConsentRequired: "consent_required",
 	/**
 	 * The request_uri in the Authorization Request returns an error or contains
 	 * invalid data.
 	 */
-	InvalidRequestUri: 'invalid_request_uri',
+	InvalidRequestUri: "invalid_request_uri",
 	/**
 	 * The request parameter contains an invalid Request Object.
 	 */
-	InvalidRequestObject: 'invalid_request_object',
+	InvalidRequestObject: "invalid_request_object",
 	/**
 	 * The OP does not support use of the request parameter defined in Section 6.
 	 */
-	RequestNotSupported: 'request_not_supported',
+	RequestNotSupported: "request_not_supported",
 	/**
 	 * The OP does not support use of the request_uri parameter defined in
 	 * Section 6.
 	 */
-	RequestUriNotSupported: 'request_uri_not_supported',
+	RequestUriNotSupported: "request_uri_not_supported",
 	/**
 	 * The OP does not support use of the registration parameter defined in
 	 * Section 7.2.1.
 	 */
-	RegistrationNotSupported: 'registration_not_supported',
+	RegistrationNotSupported: "registration_not_supported",
 } as const;
 
 export interface ExchangeCodeOptions extends Partial<Record<string, string>> {
@@ -422,7 +428,7 @@ export interface ExchangeCodeOptions extends Partial<Record<string, string>> {
 
 export type GrantType = EnumConstType<typeof Grant>;
 export const Grant = {
-	AuthorizationCode: 'authorization_code',
+	AuthorizationCode: "authorization_code",
 } as const;
 
 export interface ExchangeCodeResponse {

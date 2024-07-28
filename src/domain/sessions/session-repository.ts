@@ -1,4 +1,4 @@
-import { ISessionState } from './session-state';
+import type { ISessionState } from "./session-state";
 
 export interface SessionRepository {
 	findById(id: string): Promise<ISessionState | null>;

@@ -1,7 +1,7 @@
-import { HttpStatusCodes } from '@eos/application/http/consts';
-import { Next } from 'hono';
-import { WithCookies } from '../types';
-import { Gate } from './gate';
+import { HttpStatusCodes } from "@eos/application/http/consts";
+import type { Next } from "hono";
+import type { WithCookies } from "../types";
+import { Gate } from "./gate";
 
 /**
  * Gate that forces captcha verification through Cloudflare if not already provided
@@ -16,8 +16,8 @@ export class CaptchaGate extends Gate {
 	}
 }
 
-const CHALLENGE_HEADER = 'cf-challenge';
-const CHALLENGE_VALUE = 'captcha';
+const CHALLENGE_HEADER = "cf-challenge";
+const CHALLENGE_VALUE = "captcha";
 
 export function challengeWithCaptcha(): Response {
 	return new Response(null, {
@@ -28,7 +28,7 @@ export function challengeWithCaptcha(): Response {
 	});
 }
 
-const CAPTCHA_CLEARANCE = 'cf_clearance';
+const CAPTCHA_CLEARANCE = "cf_clearance";
 
 export function hasPassedCaptcha(ctx: WithCookies): boolean {
 	return Boolean(ctx.var.cookies[CAPTCHA_CLEARANCE]);

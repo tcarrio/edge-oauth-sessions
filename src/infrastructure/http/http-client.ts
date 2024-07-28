@@ -1,21 +1,37 @@
-import { EnumConstType } from "@eos/domain/open-id-connect/types";
+import type { EnumConstType } from "@eos/domain/open-id-connect/types";
 
 export interface HttpClient {
 	get<T>(path: string, options?: HttpOptions): Promise<HttpResponse<T>>;
-	post<T>(path: string, data: any, options?: HttpOptions): Promise<HttpResponse<T>>;
-	patch<T>(path: string, data: any, options?: HttpOptions): Promise<HttpResponse<T>>;
-	put<T>(path: string, data: any, options?: HttpOptions): Promise<HttpResponse<T>>;
+	post<T>(
+		path: string,
+		data: any,
+		options?: HttpOptions,
+	): Promise<HttpResponse<T>>;
+	patch<T>(
+		path: string,
+		data: any,
+		options?: HttpOptions,
+	): Promise<HttpResponse<T>>;
+	put<T>(
+		path: string,
+		data: any,
+		options?: HttpOptions,
+	): Promise<HttpResponse<T>>;
 	delete<T>(path: string, options?: HttpOptions): Promise<HttpResponse<T>>;
-	request<T>(method: HttpMethodType, path: string, options?: HttpOptions): Promise<HttpResponse<T>>;
+	request<T>(
+		method: HttpMethodType,
+		path: string,
+		options?: HttpOptions,
+	): Promise<HttpResponse<T>>;
 }
 
 export type HttpMethodType = EnumConstType<typeof HttpMethod>;
 export const HttpMethod = {
-	GET: 'GET',
-	POST: 'POST',
-	PATCH: 'PATCH',
-	PUT: 'PUT',
-	DELETE: 'DELETE',
+	GET: "GET",
+	POST: "POST",
+	PATCH: "PATCH",
+	PUT: "PUT",
+	DELETE: "DELETE",
 } as const;
 
 export type HttpHeaders = Record<string, string>;
@@ -33,11 +49,11 @@ export interface HttpOptions {
 
 export type ResponseFormatType = EnumConstType<typeof ResponseFormat>;
 export const ResponseFormat = {
-	JSON: 'json',
-	Text: 'text',
-	XML: 'xml',
-	Infer: 'infer',
-	Ignore: 'ignore',
+	JSON: "json",
+	Text: "text",
+	XML: "xml",
+	Infer: "infer",
+	Ignore: "ignore",
 } as const;
 
 export interface HttpResponse<T> {
@@ -68,25 +84,25 @@ export class HttpResponse<T> implements HttpResponse<T> {
 			case ResponseFormat.Text:
 				return this.textData as unknown as T;
 			case ResponseFormat.XML:
-				throw new Error('Not implemented');
+				throw new Error("Not implemented");
 			default:
 				return null as T;
 		}
 	}
 
 	private inferDataFormat(headers: HttpHeaders): ResponseFormatType {
-		const contentType = headers['content-type'];
+		const contentType = headers["content-type"];
 		if (!contentType) {
 			return ResponseFormat.Ignore;
 		}
 
-		if (contentType.includes('application/json')) {
+		if (contentType.includes("application/json")) {
 			return ResponseFormat.JSON;
 		}
-		if (contentType.includes('application/xml')) {
+		if (contentType.includes("application/xml")) {
 			return ResponseFormat.XML;
 		}
-		if (contentType.includes('text/plain')) {
+		if (contentType.includes("text/plain")) {
 			return ResponseFormat.Text;
 		}
 

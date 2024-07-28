@@ -1,9 +1,16 @@
-import { HttpMethods, HttpStatusCodes } from '@eos/application/http/consts';
-import { Next } from 'hono';
-import { WithCookies } from '../types';
-import { Gate } from './gate';
+import { HttpMethods, HttpStatusCodes } from "@eos/application/http/consts";
+import type { Next } from "hono";
+import type { WithCookies } from "../types";
+import { Gate } from "./gate";
 
-const PROTECTED_METHODS = Object.freeze(new Set<string>([HttpMethods.Post, HttpMethods.Put, HttpMethods.Patch, HttpMethods.Delete]));
+const PROTECTED_METHODS = Object.freeze(
+	new Set<string>([
+		HttpMethods.Post,
+		HttpMethods.Put,
+		HttpMethods.Patch,
+		HttpMethods.Delete,
+	]),
+);
 
 /**
  * Gate that forces captcha verification through Cloudflare if not already provided
@@ -19,7 +26,10 @@ export class CaptchaGate extends Gate {
 			return await next();
 		}
 
-		if (!PROTECTED_METHODS.has(ctx.req.method) || !this.config.isProtectedRoute(ctx.req.path)) {
+		if (
+			!PROTECTED_METHODS.has(ctx.req.method) ||
+			!this.config.isProtectedRoute(ctx.req.path)
+		) {
 			return await next();
 		}
 

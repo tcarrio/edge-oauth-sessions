@@ -1,16 +1,18 @@
-import { WithCookies } from '@eos/application/hono/types';
-import { AuthSessionManagerFactory } from '@eos/domain/sessions/auth-session-manager';
-import { Middleware } from './middleware';
-import { Next } from 'hono';
+import type { WithCookies } from "@eos/application/hono/types";
+import type { AuthSessionManagerFactory } from "@eos/domain/sessions/auth-session-manager";
+import { Middleware } from "./middleware";
+import type { Next } from "hono";
 
 /**
  * Middleware that attaches the Authorization header to the request if the user is authenticated.
  */
 export class AuthSessionMiddleware extends Middleware {
-	private static readonly AUTHORIZATION_HEADER = 'Authorization';
-	private static readonly AUTH_SESSION_KEY = 'auth-session-id';
+	private static readonly AUTHORIZATION_HEADER = "Authorization";
+	private static readonly AUTH_SESSION_KEY = "auth-session-id";
 
-	public constructor(private readonly authSessionManagerFactory: AuthSessionManagerFactory) {
+	public constructor(
+		private readonly authSessionManagerFactory: AuthSessionManagerFactory,
+	) {
 		super();
 	}
 
@@ -32,7 +34,10 @@ export class AuthSessionMiddleware extends Middleware {
 			return await next();
 		}
 
-		ctx.req.raw.headers.set(AuthSessionMiddleware.AUTHORIZATION_HEADER, `Bearer ${accessToken}`);
+		ctx.req.raw.headers.set(
+			AuthSessionMiddleware.AUTHORIZATION_HEADER,
+			`Bearer ${accessToken}`,
+		);
 
 		return await next();
 	}

@@ -1,8 +1,8 @@
-import { SessionRepository } from '@eos/domain/sessions/session-repository';
-import { ISessionState } from '@eos/domain/sessions/session-state';
-import { z } from 'zod';
-import { KVConfig } from './config';
-import { KVService } from './service';
+import type { SessionRepository } from "@eos/domain/sessions/session-repository";
+import type { ISessionState } from "@eos/domain/sessions/session-state";
+import { z } from "zod";
+import type { KVConfig } from "./config";
+import type { KVService } from "./service";
 
 const KVStateSchema = z.object({
 	accessToken: z.string(),
@@ -11,15 +11,22 @@ const KVStateSchema = z.object({
 });
 
 export class KVSessionRepository implements SessionRepository {
-	constructor(private readonly service: KVService, private readonly config: KVConfig) {}
+	constructor(
+		private readonly service: KVService,
+		private readonly config: KVConfig,
+	) {}
 
 	async findById(id: string): Promise<ISessionState | null> {
-		const json = this.service.getClient().get(this.keyForSessionId(id), { type: 'json' });
+		const json = this.service
+			.getClient()
+			.get(this.keyForSessionId(id), { type: "json" });
 
 		const { success, data } = KVStateSchema.safeParse(json);
 
 		if (!success) {
-			console.error('A fatal error occurred in the structure of the database record!');
+			console.error(
+				"A fatal error occurred in the structure of the database record!",
+			);
 
 			return null;
 		}
@@ -28,7 +35,9 @@ export class KVSessionRepository implements SessionRepository {
 	}
 
 	async upsert(id: string, session: ISessionState): Promise<void> {
-		this.service.getClient().put(this.keyForSessionId(id), JSON.stringify(session));
+		this.service
+			.getClient()
+			.put(this.keyForSessionId(id), JSON.stringify(session));
 	}
 
 	async delete(id: string): Promise<void> {
@@ -36,6 +45,6 @@ export class KVSessionRepository implements SessionRepository {
 	}
 
 	private keyForSessionId(id: string): string {
-		return [this.config.keyPrefix, id].filter(Boolean).join('-');
+		return [this.config.keyPrefix, id].filter(Boolean).join("-");
 	}
 }

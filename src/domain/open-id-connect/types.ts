@@ -1,5 +1,8 @@
-import { z } from 'zod';
-import { AuthorizationUrlOptions, AuthorizationUrlOptionsSchema } from './client';
+import { z } from "zod";
+import {
+	type AuthorizationUrlOptions,
+	AuthorizationUrlOptionsSchema,
+} from "./client";
 
 export const BaseOIDCOptionsSchema = z.object({
 	clientId: z.string().min(1),
@@ -24,6 +27,8 @@ export const EnvBaseOIDCOptionsSchema = z.object({
 
 export type EnumConstType<T> = T[keyof T];
 
-export function enumValues<T extends object>(obj: T): [EnumConstType<T>, ...EnumConstType<T>[]] {
+export function enumValues<T extends object>(
+	obj: T,
+): [EnumConstType<T>, ...EnumConstType<T>[]] {
 	return Object.values(obj) as [EnumConstType<T>, ...EnumConstType<T>[]];
 }

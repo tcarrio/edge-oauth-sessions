@@ -1,4 +1,4 @@
-import { Env } from "@eos/infrastructure/cloudflare/@types/env";
+import type { Env } from "@eos/infrastructure/cloudflare/@types/env";
 import { KVService } from "./service";
 
 export class KVServiceFactory {

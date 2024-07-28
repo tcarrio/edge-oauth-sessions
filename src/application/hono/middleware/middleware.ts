@@ -1,4 +1,4 @@
-import { Context, Next } from "hono";
+import type { Context, Next } from "hono";
 
 export abstract class Middleware implements IMiddleware {
 	abstract handle(ctx: Context, next: Next): Promise<void>;

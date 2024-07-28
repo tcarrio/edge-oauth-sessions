@@ -1,26 +1,26 @@
-import { CallbackHandler } from '@eos/application/hono/handlers/callback.handler';
-import { LoginHandler } from '@eos/application/hono/handlers/login.handler';
-import { LogoutHandler } from '@eos/application/hono/handlers/logout.handler';
-import { PassthroughProxyHandler } from '@eos/application/hono/handlers/passthrough-proxy.handler';
-import { AuthSessionMiddleware } from '@eos/application/hono/middleware/auth-session.middleware';
-import { BotScoringMiddleware } from '@eos/application/hono/middleware/cloudflare/bot-scoring.middleware';
-import { GeolocationMiddleware } from '@eos/application/hono/middleware/cloudflare/geolocation.middleware';
-import { WithCookiesMiddleware } from '@eos/application/hono/middleware/with-cookies';
-import { memoize } from '@eos/domain/functional/memoize';
-import { Env } from '@eos/infrastructure/cloudflare/@types/env';
-import { CloudflareConfigFactory } from '@eos/infrastructure/cloudflare/config';
-import { RouterConfigFactory } from '@eos/infrastructure/hono/router/config';
-import { AuthSessionManagerFactoryFactory } from '@eos/infrastructure/cloudflare/sessions/auth-session-manager';
-import { WorkerCryptoUuidFactory } from '@eos/infrastructure/cloudflare/uuid/WorkerCryptoUuidFactory';
-import { FetchHttpClient } from '@eos/infrastructure/http/fetch-http-client';
-import { ResponseFormat } from '@eos/infrastructure/http/http-client';
-import { OpenIDConnectConfigFactory } from '@eos/infrastructure/open-id-connect/config';
-import { OpenIDConnectClientFactory } from '@eos/infrastructure/open-id-connect/factory';
-import { D1CookieSecretRepository } from '@eos/infrastructure/persistence/d1/cookie-secret-repository';
-import { Hono } from 'hono';
-import { AssuredResources } from '@eos/domain/common/resources';
+import { CallbackHandler } from "@eos/application/hono/handlers/callback.handler";
+import { LoginHandler } from "@eos/application/hono/handlers/login.handler";
+import { LogoutHandler } from "@eos/application/hono/handlers/logout.handler";
+import { PassthroughProxyHandler } from "@eos/application/hono/handlers/passthrough-proxy.handler";
+import { AuthSessionMiddleware } from "@eos/application/hono/middleware/auth-session.middleware";
+import { BotScoringMiddleware } from "@eos/application/hono/middleware/cloudflare/bot-scoring.middleware";
+import { GeolocationMiddleware } from "@eos/application/hono/middleware/cloudflare/geolocation.middleware";
+import { WithCookiesMiddleware } from "@eos/application/hono/middleware/with-cookies";
+import { memoize } from "@eos/domain/functional/memoize";
+import type { Env } from "@eos/infrastructure/cloudflare/@types/env";
+import { CloudflareConfigFactory } from "@eos/infrastructure/cloudflare/config";
+import { RouterConfigFactory } from "@eos/infrastructure/hono/router/config";
+import { AuthSessionManagerFactoryFactory } from "@eos/infrastructure/cloudflare/sessions/auth-session-manager";
+import { WorkerCryptoUuidFactory } from "@eos/infrastructure/cloudflare/uuid/WorkerCryptoUuidFactory";
+import { FetchHttpClient } from "@eos/infrastructure/http/fetch-http-client";
+import { ResponseFormat } from "@eos/infrastructure/http/http-client";
+import { OpenIDConnectConfigFactory } from "@eos/infrastructure/open-id-connect/config";
+import { OpenIDConnectClientFactory } from "@eos/infrastructure/open-id-connect/factory";
+import { D1CookieSecretRepository } from "@eos/infrastructure/persistence/d1/cookie-secret-repository";
+import { Hono } from "hono";
+import { AssuredResources } from "@eos/domain/common/resources";
 
-export { DurableAuthSessionObject } from '@eos/infrastructure/cloudflare/durables/DurableAuthSessionObject';
+export { DurableAuthSessionObject } from "@eos/infrastructure/cloudflare/durables/DurableAuthSessionObject";
 
 /**
  * Welcome to Cloudflare Workers! This is your first Durable Objects application.
@@ -36,18 +36,28 @@ export { DurableAuthSessionObject } from '@eos/infrastructure/cloudflare/durable
  */
 
 const getRouter = memoize(async (env: Env): Promise<Hono> => {
-	const authSessionManagerFactory = AuthSessionManagerFactoryFactory.forEnv(env);
+	const authSessionManagerFactory =
+		AuthSessionManagerFactoryFactory.forEnv(env);
 	const routerConfig = RouterConfigFactory.forEnv(env);
 	const oidcConfig = OpenIDConnectConfigFactory.forEnv(env);
 	const featureConfig = CloudflareConfigFactory.forEnv(env);
 	const uuidFactory = WorkerCryptoUuidFactory.instance();
 
 	// TODO: Base URL for HttpClient
-	const oidcAgentHttpClient = new FetchHttpClient({ baseUrl: '', followRedirects: 0, responseFormat: ResponseFormat.JSON, })
+	const oidcAgentHttpClient = new FetchHttpClient({
+		baseUrl: "",
+		followRedirects: 0,
+		responseFormat: ResponseFormat.JSON,
+	});
 
-	const oidcClient = new OpenIDConnectClientFactory(oidcAgentHttpClient).forEnv(env);
+	const oidcClient = new OpenIDConnectClientFactory(oidcAgentHttpClient).forEnv(
+		env,
+	);
 
-	const cookieSecretRepository = new D1CookieSecretRepository(env.D1_DATABASE, env.D1_COOKIE_SECRET_TABLE_NAME);
+	const cookieSecretRepository = new D1CookieSecretRepository(
+		env.D1_DATABASE,
+		env.D1_COOKIE_SECRET_TABLE_NAME,
+	);
 
 	// ensure all repositories are ready to roll
 	await AssuredResources.prepare(cookieSecretRepository);
@@ -56,22 +66,41 @@ const getRouter = memoize(async (env: Env): Promise<Hono> => {
 	const router = new Hono();
 
 	// ensure cookie proxy availability
-	router.use('*', new WithCookiesMiddleware().bind());
+	router.use("*", new WithCookiesMiddleware().bind());
 
 	if (featureConfig.geolocationEnabled) {
-		router.use('*', new GeolocationMiddleware().bind());
+		router.use("*", new GeolocationMiddleware().bind());
 	}
 	if (featureConfig.botScoringEnabled) {
-		router.use('*', new BotScoringMiddleware().bind());
+		router.use("*", new BotScoringMiddleware().bind());
 	}
 
 	// authentication application routes
-	router.get(routerConfig.logoutPath, new LogoutHandler(authSessionManagerFactory, routerConfig).bind());
-	router.get(routerConfig.loginPath, new LoginHandler(routerConfig, oidcConfig, oidcClient, cookieSecretRepository, uuidFactory).bind());
-	router.get(routerConfig.callbackPath, new CallbackHandler(oidcConfig, oidcClient).bind());
+	router.get(
+		routerConfig.logoutPath,
+		new LogoutHandler(authSessionManagerFactory, routerConfig).bind(),
+	);
+	router.get(
+		routerConfig.loginPath,
+		new LoginHandler(
+			routerConfig,
+			oidcConfig,
+			oidcClient,
+			cookieSecretRepository,
+			uuidFactory,
+		).bind(),
+	);
+	router.get(
+		routerConfig.callbackPath,
+		new CallbackHandler(oidcConfig, oidcClient).bind(),
+	);
 
 	// proxy all remaining routes with Token Handler support
-	router.all('*', new AuthSessionMiddleware(authSessionManagerFactory).bind(), new PassthroughProxyHandler().bind());
+	router.all(
+		"*",
+		new AuthSessionMiddleware(authSessionManagerFactory).bind(),
+		new PassthroughProxyHandler().bind(),
+	);
 
 	return router;
 });

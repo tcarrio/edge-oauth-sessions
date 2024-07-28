@@ -1,7 +1,7 @@
 import { requestIsGeographicInformation } from "./request";
-import { sanitizeHeader } from '../../../http/sanitize-headers';
-import { Middleware } from '../middleware';
-import { Context, Next } from "hono";
+import { sanitizeHeader } from "../../../http/sanitize-headers";
+import { Middleware } from "../middleware";
+import type { Context, Next } from "hono";
 
 /**
  * Middleware that adds geographic information headers to the request when
@@ -17,19 +17,28 @@ export class GeolocationMiddleware extends Middleware {
 		}
 
 		if (rawRequest.cf.city) {
-			rawRequest.headers.set('X-Geo-City', sanitizeHeader(rawRequest.cf.city));
+			rawRequest.headers.set("X-Geo-City", sanitizeHeader(rawRequest.cf.city));
 		}
 		if (rawRequest.cf.postalCode) {
-			rawRequest.headers.set('X-Geo-Postal-Code', sanitizeHeader(rawRequest.cf.postalCode));
+			rawRequest.headers.set(
+				"X-Geo-Postal-Code",
+				sanitizeHeader(rawRequest.cf.postalCode),
+			);
 		}
 		if (rawRequest.cf.region) {
-			rawRequest.headers.set('X-Geo-Region', sanitizeHeader(rawRequest.cf.region));
+			rawRequest.headers.set(
+				"X-Geo-Region",
+				sanitizeHeader(rawRequest.cf.region),
+			);
 		}
 		if (rawRequest.cf.regionCode) {
-			rawRequest.headers.set('X-Geo-Region-Code', sanitizeHeader(rawRequest.cf.regionCode));
+			rawRequest.headers.set(
+				"X-Geo-Region-Code",
+				sanitizeHeader(rawRequest.cf.regionCode),
+			);
 		}
 		if (rawRequest.cf.asn) {
-			rawRequest.headers.set('Cf-ASN', String(rawRequest.cf.asn));
+			rawRequest.headers.set("Cf-ASN", String(rawRequest.cf.asn));
 		}
 	}
 }

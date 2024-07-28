@@ -14,6 +14,7 @@
             packages = with pkgs; [
                 # dev tools
                 git
+								biome
                 moon
 
                 # node

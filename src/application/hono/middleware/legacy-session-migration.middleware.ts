@@ -1,9 +1,9 @@
-import { WithCookies } from '@eos/application/hono/types';
-import { Middleware } from './middleware';
-import { Next } from 'hono';
-import { setCookie } from 'hono/cookie';
-import { z } from 'zod';
-import { ResponseCookies } from '@eos/application/http/response-cookies';
+import type { WithCookies } from "@eos/application/hono/types";
+import { Middleware } from "./middleware";
+import type { Next } from "hono";
+import { setCookie } from "hono/cookie";
+import { z } from "zod";
+import { ResponseCookies } from "@eos/application/http/response-cookies";
 
 /**
  * Middleware that attaches the Authorization header to the request if the user is authenticated.
@@ -26,20 +26,25 @@ export class LegacySessionMigrationMiddleware extends Middleware {
 
 		const responseCookies = ResponseCookies.fromHeaders(ctx.res.headers);
 
-		let responseLegacySessionId = responseCookies.has(this.config.legacyKey)
+		const responseLegacySessionId = responseCookies.has(this.config.legacyKey)
 			? responseCookies.get(this.config.legacyKey)
 			: null;
 
 		if (requestLegacySessionId || responseLegacySessionId) {
-			setCookie(ctx, this.config.authSessionKey, (responseLegacySessionId?.value ?? requestLegacySessionId)!);
+			setCookie(
+				ctx,
+				this.config.authSessionKey,
+				(responseLegacySessionId?.value ?? requestLegacySessionId)!,
+			);
 		}
 	}
 }
-
 
 export const LegacySessionMigrationConfigSchema = z.object({
 	legacyKey: z.string(),
 	authSessionKey: z.string(),
 });
 
-export type LegacySessionMigrationConfig = z.infer<typeof LegacySessionMigrationConfigSchema>;
+export type LegacySessionMigrationConfig = z.infer<
+	typeof LegacySessionMigrationConfigSchema
+>;

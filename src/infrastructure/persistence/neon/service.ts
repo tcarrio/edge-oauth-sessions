@@ -1,5 +1,5 @@
-import { Client } from '@neondatabase/serverless';
-import { NeonConfig } from './config';
+import { Client } from "@neondatabase/serverless";
+import type { NeonConfig } from "./config";
 
 export class NeonService {
 	private client: Client | null = null;

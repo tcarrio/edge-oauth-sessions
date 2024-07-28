@@ -1,8 +1,8 @@
 const Columns = {
-	Id: 'session_id',
-	AccessToken: 'access_token',
-	RefreshToken: 'refresh_token',
-	IdToken: 'id_token',
+	Id: "session_id",
+	AccessToken: "access_token",
+	RefreshToken: "refresh_token",
+	IdToken: "id_token",
 } as const;
 const C = Columns;
 

@@ -1,6 +1,7 @@
 {
     "nixEnvSelector.nixFile": "${workspaceRoot}/shell.nix",
     "cSpell.words": [
+        "memoizer",
         "oidc"
     ]
 }

@@ -3,4 +3,3 @@ export interface OpenIDConnectConfig {
 	clientId: string;
 	clientSecret: string;
 }
-

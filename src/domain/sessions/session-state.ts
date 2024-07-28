@@ -1,4 +1,4 @@
-import { decodeJwt, JWTPayload } from 'jose';
+import { decodeJwt, type JWTPayload } from "jose";
 
 export interface ISessionState {
 	readonly accessToken: string;
@@ -12,12 +12,21 @@ export interface IEnrichedSessionState<AccessTokenPayload, IdTokenPayload> {
 	readonly idToken?: JWTPayload & IdTokenPayload;
 }
 
-export class HydratingSessionState<AccessTokenPayload extends object = object, IdTokenPayload extends object = object> {
-	private _parsed: IEnrichedSessionState<AccessTokenPayload, IdTokenPayload> | null = null;
+export class HydratingSessionState<
+	AccessTokenPayload extends object = object,
+	IdTokenPayload extends object = object,
+> {
+	private _parsed: IEnrichedSessionState<
+		AccessTokenPayload,
+		IdTokenPayload
+	> | null = null;
 
 	public constructor(public readonly raw: ISessionState) {}
 
-	public get parsed(): IEnrichedSessionState<AccessTokenPayload, IdTokenPayload> {
+	public get parsed(): IEnrichedSessionState<
+		AccessTokenPayload,
+		IdTokenPayload
+	> {
 		return (this._parsed ??= this.hydrate());
 	}
 
