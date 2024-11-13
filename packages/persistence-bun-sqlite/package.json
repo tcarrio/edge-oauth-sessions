@@ -1,5 +1,5 @@
 {
-	"name": "@eos/monorepo",
+	"name": "@eos/persistence-bun-sqlite",
 	"version": "0.0.0",
 	"private": true,
 	"scripts": {
@@ -11,10 +11,7 @@
 		"check:write": "biome check --write"
 	},
 	"devDependencies": {
-		"@biomejs/biome": "^1.9.4",
+		"bun-types": "^1.1.20",
 		"typescript": "^5.4.5"
-	},
-	"workspaces": [
-		"packages/*"
-	]
+	}
 }

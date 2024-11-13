@@ -1,5 +1,5 @@
 {
-	"name": "@eos/monorepo",
+	"name": "@eos/oidc-workos",
 	"version": "0.0.0",
 	"private": true,
 	"scripts": {
@@ -11,10 +11,10 @@
 		"check:write": "biome check --write"
 	},
 	"devDependencies": {
-		"@biomejs/biome": "^1.9.4",
 		"typescript": "^5.4.5"
 	},
-	"workspaces": [
-		"packages/*"
-	]
+	"dependencies": {
+		"@workos-inc/node": "^7.11.3",
+		"zod": "^3.23.8"
+	}
 }
