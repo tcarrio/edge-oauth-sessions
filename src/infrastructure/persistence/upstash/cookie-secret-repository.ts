@@ -1,8 +1,11 @@
-import { CookieSecretRepository, CookieSecretState } from '@eos/domain/sessions/cookie-secret-repository';
-import { Redis } from '@upstash/redis/cloudflare';
+import type { CookieSecretRepository, CookieSecretState } from '@eos/domain/sessions/cookie-secret-repository';
+import type { Redis } from '@upstash/redis/cloudflare';
 
 export class D1CookieSecretRepository implements CookieSecretRepository {
-	constructor(private readonly redis: Redis, private readonly namespace: string) {}
+	constructor(
+		private readonly redis: Redis,
+		private readonly namespace: string,
+	) {}
 
 	async findById(id: string): Promise<CookieSecretState | null> {
 		return await this.redis.get<CookieSecretState>(this.namespaced(id));

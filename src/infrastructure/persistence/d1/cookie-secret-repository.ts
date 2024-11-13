@@ -1,10 +1,13 @@
-import { CookieSecretRepository, CookieSecretState } from '@eos/domain/sessions/cookie-secret-repository';
+import type { CookieSecretRepository, CookieSecretState } from '@eos/domain/sessions/cookie-secret-repository';
 import { SqliteStatementTemplates } from '../sqlite/cookie-secret-statements';
 
 export class D1CookieSecretRepository implements CookieSecretRepository {
 	private readonly statementTemplates: SqliteStatementTemplates;
 
-	constructor(private readonly db: D1Database, table: string) {
+	constructor(
+		private readonly db: D1Database,
+		table: string,
+	) {
 		this.statementTemplates = new SqliteStatementTemplates(table);
 	}
 
@@ -12,7 +15,7 @@ export class D1CookieSecretRepository implements CookieSecretRepository {
 		return await this.db.prepare(this.statementTemplates.findById).bind(id).first();
 	}
 
-	async upsert(id: string, {value, createdAt,expiresAt}: CookieSecretState): Promise<void> {
+	async upsert(id: string, { value, createdAt, expiresAt }: CookieSecretState): Promise<void> {
 		await this.db.prepare(this.statementTemplates.upsert).bind(id, value, createdAt, expiresAt).run();
 	}
 

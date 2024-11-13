@@ -1,33 +1,40 @@
 {
-  "name": "auth0-cf-workers",
-  "version": "0.0.0",
-  "private": true,
-  "scripts": {
-    "deploy": "wrangler deploy",
-    "dev": "wrangler dev",
-    "start": "wrangler dev",
-    "cf-typegen": "wrangler types"
-  },
-  "devDependencies": {
-    "@cloudflare/workers-types": "^4.20240620.0",
-    "bun-types": "^1.1.20",
-    "typescript": "^5.4.5",
-    "wrangler": "^3.60.3"
-  },
-  "dependencies": {
-    "itty-router": "^5.0.17",
-    "jose": "^5.6.2",
-    "zod": "^3.23.8"
-  },
-  "optionalDependencies": {
-    "@neondatabase/serverless": "^0.9.4",
-    "@ory/client": "^1.14.0",
-    "@ory/client-fetch": "^1.14.0",
-    "@types/better-sqlite3": "^7.6.11",
-    "@upstash/redis": "^1.33.0",
-    "@workos-inc/node": "^7.11.3",
-    "auth0": "^4.6.0",
-    "better-sqlite3": "^11.1.2",
-    "hono": "^4.5.0"
-  }
+	"name": "auth0-cf-workers",
+	"version": "0.0.0",
+	"private": true,
+	"scripts": {
+		"dev": "wrangler dev",
+		"start": "wrangler dev",
+		"wrangler:deploy": "wrangler deploy",
+		"wrangler:types": "wrangler types",
+		"format": "biome format",
+		"format:write": "biome format --write",
+		"lint": "biome lint",
+		"lint:write": "biome lint --write",
+		"check": "biome check",
+		"check:write": "biome check --write"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "^1.9.4",
+		"@cloudflare/workers-types": "^4.20241112.0",
+		"bun-types": "^1.1.20",
+		"typescript": "^5.4.5",
+		"wrangler": "^3.86.1"
+	},
+	"dependencies": {
+		"itty-router": "^5.0.17",
+		"jose": "^5.6.2",
+		"zod": "^3.23.8"
+	},
+	"optionalDependencies": {
+		"@neondatabase/serverless": "^0.9.4",
+		"@ory/client": "^1.14.0",
+		"@ory/client-fetch": "^1.14.0",
+		"@types/better-sqlite3": "^7.6.11",
+		"@upstash/redis": "^1.33.0",
+		"@workos-inc/node": "^7.11.3",
+		"auth0": "^4.6.0",
+		"better-sqlite3": "^11.1.2",
+		"hono": "^4.5.0"
+	}
 }

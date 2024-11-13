@@ -6,19 +6,19 @@ import { AuthSessionMiddleware } from '@eos/application/hono/middleware/auth-ses
 import { BotScoringMiddleware } from '@eos/application/hono/middleware/cloudflare/bot-scoring.middleware';
 import { GeolocationMiddleware } from '@eos/application/hono/middleware/cloudflare/geolocation.middleware';
 import { WithCookiesMiddleware } from '@eos/application/hono/middleware/with-cookies';
+import { AssuredResources } from '@eos/domain/common/resources';
 import { memoize } from '@eos/domain/functional/memoize';
-import { Env } from '@eos/infrastructure/cloudflare/@types/env';
+import type { Env } from '@eos/infrastructure/cloudflare/@types/env';
 import { CloudflareConfigFactory } from '@eos/infrastructure/cloudflare/config';
-import { RouterConfigFactory } from '@eos/infrastructure/hono/router/config';
 import { AuthSessionManagerFactoryFactory } from '@eos/infrastructure/cloudflare/sessions/auth-session-manager';
 import { WorkerCryptoUuidFactory } from '@eos/infrastructure/cloudflare/uuid/WorkerCryptoUuidFactory';
+import { RouterConfigFactory } from '@eos/infrastructure/hono/router/config';
 import { FetchHttpClient } from '@eos/infrastructure/http/fetch-http-client';
 import { ResponseFormat } from '@eos/infrastructure/http/http-client';
 import { OpenIDConnectConfigFactory } from '@eos/infrastructure/open-id-connect/config';
 import { OpenIDConnectClientFactory } from '@eos/infrastructure/open-id-connect/factory';
 import { D1CookieSecretRepository } from '@eos/infrastructure/persistence/d1/cookie-secret-repository';
 import { Hono } from 'hono';
-import { AssuredResources } from '@eos/domain/common/resources';
 
 export { DurableAuthSessionObject } from '@eos/infrastructure/cloudflare/durables/DurableAuthSessionObject';
 
@@ -43,7 +43,7 @@ const getRouter = memoize(async (env: Env): Promise<Hono> => {
 	const uuidFactory = WorkerCryptoUuidFactory.instance();
 
 	// TODO: Base URL for HttpClient
-	const oidcAgentHttpClient = new FetchHttpClient({ baseUrl: '', followRedirects: 0, responseFormat: ResponseFormat.JSON, })
+	const oidcAgentHttpClient = new FetchHttpClient({ baseUrl: '', followRedirects: 0, responseFormat: ResponseFormat.JSON });
 
 	const oidcClient = new OpenIDConnectClientFactory(oidcAgentHttpClient).forEnv(env);
 

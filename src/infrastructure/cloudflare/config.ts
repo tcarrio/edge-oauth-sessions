@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { Env } from './@types/env';
+import type { Env } from './@types/env';
 
 export class CloudflareConfig {
 	constructor(
@@ -20,5 +20,3 @@ export class CloudflareConfigFactory {
 		return new CloudflareConfig(CLOUDFLARE_GEOLOCATION_ENABLED, CLOUDFLARE_BOT_SCORING_ENABLED);
 	}
 }
-
-

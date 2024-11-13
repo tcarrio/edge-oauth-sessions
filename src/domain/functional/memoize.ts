@@ -1,7 +1,9 @@
 import { any } from './array';
 
+// biome-ignore lint/suspicious/noExplicitAny: Must allow any for full coverage
 type Memoizer<Params extends any[] = any[], Value = any> = InitializedMemoizer<Params, Value> | UninitializedMemoizer;
 
+// biome-ignore lint/suspicious/noExplicitAny: Must allow any for generic function
 type InitializedMemoizer<Params extends any[], Value> = {
 	previousArgs: Params;
 	value: Value;
@@ -12,7 +14,9 @@ type UninitializedMemoizer = {
 	value: null;
 };
 
-type BasicMap<T, U> = Pick<Map<T, U>, 'get' | 'clear' | 'delete' | 'size'> & { set(key: T, value: U): BasicMap<T, U> };
+type BasicMap<T, U> = Pick<Map<T, U>, 'get' | 'clear' | 'delete' | 'size'> & {
+	set(key: T, value: U): BasicMap<T, U>;
+};
 
 class AnyMap<T, U> implements BasicMap<T, U> {
 	private readonly primitiveMap = new Map<T, U>();
@@ -65,8 +69,12 @@ class AnyMap<T, U> implements BasicMap<T, U> {
 	}
 }
 
+// biome-ignore lint/suspicious/noExplicitAny: Must allow any for generic function
 export function memoize<Fn extends (...args: any[]) => any>(fn: Fn): Fn {
-	const memoizer: Memoizer<Parameters<Fn>, ReturnType<Fn>> = { previousArgs: null, value: null };
+	const memoizer: Memoizer<Parameters<Fn>, ReturnType<Fn>> = {
+		previousArgs: null,
+		value: null,
+	};
 
 	function memoized(...args: Parameters<Fn>): ReturnType<Fn> {
 		if (isInitializedMemoizer(memoizer) && deepEquals(args, memoizer.previousArgs)) {
@@ -75,22 +83,21 @@ export function memoize<Fn extends (...args: any[]) => any>(fn: Fn): Fn {
 
 		memoizer.previousArgs = args;
 
-		// @ts-ignore
 		memoizer.value = fn.apply(fn, args);
 
-		return memoizer.value!;
+		return memoizer.value as ReturnType<Fn>;
 	}
 
 	// @ts-ignore
 	return memoized;
 }
 
+// biome-ignore lint/suspicious/noExplicitAny: Must allow any for generic function
 function isInitializedMemoizer<P extends any[], R>(memoizer: Memoizer<P, R>): memoizer is InitializedMemoizer<P, R> {
 	return memoizer.previousArgs !== null;
 }
 
-// TODO: Expand for actual deepEquals capability
-function deepEquals(x: any, y: any): x is typeof y {
+function deepEquals(x: unknown, y: unknown): x is typeof y {
 	const [typeX, typeY] = [typeof x, typeof y];
 
 	if (typeX !== typeY) {

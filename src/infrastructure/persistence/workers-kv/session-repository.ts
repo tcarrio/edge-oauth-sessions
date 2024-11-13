@@ -1,8 +1,8 @@
-import { SessionRepository } from '@eos/domain/sessions/session-repository';
-import { ISessionState } from '@eos/domain/sessions/session-state';
+import type { SessionRepository } from '@eos/domain/sessions/session-repository';
+import type { ISessionState } from '@eos/domain/sessions/session-state';
 import { z } from 'zod';
-import { KVConfig } from './config';
-import { KVService } from './service';
+import type { KVConfig } from './config';
+import type { KVService } from './service';
 
 const KVStateSchema = z.object({
 	accessToken: z.string(),
@@ -11,7 +11,14 @@ const KVStateSchema = z.object({
 });
 
 export class KVSessionRepository implements SessionRepository {
-	constructor(private readonly service: KVService, private readonly config: KVConfig) {}
+	constructor(
+		private readonly service: KVService,
+		private readonly config: KVConfig,
+	) {}
+
+	prepare(): Promise<void> {
+		return Promise.resolve();
+	}
 
 	async findById(id: string): Promise<ISessionState | null> {
 		const json = this.service.getClient().get(this.keyForSessionId(id), { type: 'json' });

@@ -1,15 +1,25 @@
-import { AuthorizationUrlOptions, ExchangeCodeOptions, OIDCScopeType, OpenIDConnectClient, RefreshOptions, ScreenHintType } from '@eos/domain/open-id-connect/client';
+import type {
+	AuthorizationUrlOptions,
+	ExchangeCodeOptions,
+	OIDCScopeType,
+	OpenIDConnectClient,
+	RefreshOptions,
+	ScreenHintType,
+} from '@eos/domain/open-id-connect/client';
 import { OAuthCodeExchangeResponseSchema } from '@eos/domain/open-id-connect/code-exchange';
-import { BaseOIDCOptions, BaseOIDCOptionsSchema, EnvBaseOIDCOptionsSchema } from '@eos/domain/open-id-connect/types';
-import { ISessionState } from '@eos/domain/sessions/session-state';
-import { AuthenticationClient } from 'auth0';
+import { type BaseOIDCOptions, BaseOIDCOptionsSchema, EnvBaseOIDCOptionsSchema } from '@eos/domain/open-id-connect/types';
+import type { ISessionState } from '@eos/domain/sessions/session-state';
+import type { AuthenticationClient } from 'auth0';
 import { z } from 'zod';
 import { mapperForMapping } from '../common/env-options-mapper';
 
 export class Auth0OIDCClient implements OpenIDConnectClient {
 	private static readonly DEFAULT_SCOPES: OIDCScopeType[] = ['openid', 'profile', 'email'];
 
-	constructor(private readonly auth0: AuthenticationClient, private readonly baseAuthorizationUrl: string) {}
+	constructor(
+		private readonly auth0: AuthenticationClient,
+		private readonly baseAuthorizationUrl: string,
+	) {}
 
 	getAuthorizationUrl({ clientId, redirectUri, screenHint, ...options }: AuthorizationUrlOptions): string {
 		const url = new URL(this.baseAuthorizationUrl);
@@ -54,17 +64,21 @@ export class Auth0OIDCClient implements OpenIDConnectClient {
 	}
 }
 
-export const Auth0OIDCOptionsSchema = z.object({
-	domain: z.string(),
-	authorizationUri: z.string().url(),
-	refreshUri: z.string().url(),
-}).merge(BaseOIDCOptionsSchema);
+export const Auth0OIDCOptionsSchema = z
+	.object({
+		domain: z.string(),
+		authorizationUri: z.string().url(),
+		refreshUri: z.string().url(),
+	})
+	.merge(BaseOIDCOptionsSchema);
 
-export const EnvAuth0OIDCOptionsSchema = z.object({
-	OAUTH_DOMAIN: z.string(),
-	OAUTH_AUTHORIZATION_URI: z.string().url(),
-	OAUTH_REFRESH_URI: z.string().url(),
-}).merge(EnvBaseOIDCOptionsSchema);
+export const EnvAuth0OIDCOptionsSchema = z
+	.object({
+		OAUTH_DOMAIN: z.string(),
+		OAUTH_AUTHORIZATION_URI: z.string().url(),
+		OAUTH_REFRESH_URI: z.string().url(),
+	})
+	.merge(EnvBaseOIDCOptionsSchema);
 
 export const mapper = mapperForMapping<Auth0OIDCOptions, typeof EnvAuth0OIDCOptionsSchema>({
 	OAUTH_AUTHORIZATION: 'authorization',

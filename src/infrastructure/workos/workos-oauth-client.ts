@@ -1,19 +1,22 @@
-import {
+import type {
 	AuthorizationUrlOptions,
 	ExchangeCodeOptions,
 	OpenIDConnectClient,
 	RefreshOptions,
 	ScreenHintType,
 } from '@eos/domain/open-id-connect/client';
-import { BaseOIDCOptions, BaseOIDCOptionsSchema, EnvBaseOIDCOptionsSchema } from '@eos/domain/open-id-connect/types';
-import { ISessionState } from '@eos/domain/sessions/session-state';
-import { WorkOS } from '@workos-inc/node';
+import { type BaseOIDCOptions, BaseOIDCOptionsSchema, EnvBaseOIDCOptionsSchema } from '@eos/domain/open-id-connect/types';
+import type { ISessionState } from '@eos/domain/sessions/session-state';
+import type { WorkOS } from '@workos-inc/node';
 import type { AuthorizationURLOptions } from '@workos-inc/node/lib/user-management/interfaces/authorization-url-options.interface';
 import { z } from 'zod';
 import { mapperForMapping } from '../common/env-options-mapper';
 
 export class WorkOSOAuthClient implements OpenIDConnectClient {
-	constructor(private readonly workOS: WorkOS, private readonly options: WorkOSOIDCOptions) {}
+	constructor(
+		private readonly workOS: WorkOS,
+		private readonly options: WorkOSOIDCOptions,
+	) {}
 
 	getAuthorizationUrl({ screenHint, ...options }: AuthorizationUrlOptions): string {
 		return this.workOS.userManagement.getAuthorizationUrl({
@@ -45,13 +48,17 @@ export class WorkOSOAuthClient implements OpenIDConnectClient {
 	}
 }
 
-export const WorkOSOIDCOptionsSchema = z.object({
-	apiKey: z.string().min(1),
-}).merge(BaseOIDCOptionsSchema);
+export const WorkOSOIDCOptionsSchema = z
+	.object({
+		apiKey: z.string().min(1),
+	})
+	.merge(BaseOIDCOptionsSchema);
 
-export const EnvWorkOSOIDCOptionsSchema = z.object({
-	WORKOS_API_KEY: z.string().min(1),
-}).merge(EnvBaseOIDCOptionsSchema);
+export const EnvWorkOSOIDCOptionsSchema = z
+	.object({
+		WORKOS_API_KEY: z.string().min(1),
+	})
+	.merge(EnvBaseOIDCOptionsSchema);
 
 export const mapper = mapperForMapping<WorkOSOIDCOptions, typeof EnvWorkOSOIDCOptionsSchema>({
 	OAUTH_AUTHORIZATION: 'authorization',

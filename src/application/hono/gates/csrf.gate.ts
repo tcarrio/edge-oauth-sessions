@@ -1,6 +1,6 @@
 import { HttpMethods, HttpStatusCodes } from '@eos/application/http/consts';
-import { Next } from 'hono';
-import { WithCookies } from '../types';
+import type { Next } from 'hono';
+import type { WithCookies } from '../types';
 import { Gate } from './gate';
 
 const PROTECTED_METHODS = Object.freeze(new Set<string>([HttpMethods.Post, HttpMethods.Put, HttpMethods.Patch, HttpMethods.Delete]));
@@ -25,20 +25,29 @@ export class CaptchaGate extends Gate {
 
 		try {
 			this.validateCsrf(ctx);
-
-			return await next();
 		} catch (err) {
 			return new Response(null, { status: HttpStatusCodes.BAD_REQUEST });
 		}
+
+		return await next();
 	}
 
 	private validateCsrf(ctx: WithCookies): void {
-		// TODO
+		const csrfCookie = ctx.var.cookies[this.config.cookieKey] ?? null;
+		const csrfParam = ctx.req.query(this.config.paramKey) ?? null;
+
+		if (csrfCookie && csrfParam && csrfCookie !== csrfParam) {
+			throw new Error('CSRF token mismatch');
+		}
 	}
 }
 
 export class CsrfConfig {
-	constructor(private readonly routes: string[]) {}
+	constructor(
+		public readonly cookieKey: string,
+		public readonly paramKey: string,
+		private readonly routes: string[],
+	) {}
 
 	isEnabled(): true {
 		return true;

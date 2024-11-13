@@ -18,7 +18,8 @@ const EnvRouterConfigSchema = z.object({
 
 export class RouterConfigFactory {
 	static forEnv(env: unknown): RouterConfig {
-		const { ROUTER_DOMAIN, ROUTER_COOKIE_KEY, ROUTER_CALLBACK_PATH, ROUTER_LOGIN_PATH, ROUTER_LOGOUT_PATH } = EnvRouterConfigSchema.parse(env);
+		const { ROUTER_DOMAIN, ROUTER_COOKIE_KEY, ROUTER_CALLBACK_PATH, ROUTER_LOGIN_PATH, ROUTER_LOGOUT_PATH } =
+			EnvRouterConfigSchema.parse(env);
 
 		return new RouterConfig(ROUTER_DOMAIN, ROUTER_COOKIE_KEY, ROUTER_CALLBACK_PATH, ROUTER_LOGIN_PATH, ROUTER_LOGOUT_PATH);
 	}

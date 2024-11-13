@@ -1,26 +1,29 @@
-import { CookieSecretRepository, CookieSecretState } from '@eos/domain/sessions/cookie-secret-repository';
-import { Database } from 'bun:sqlite';
+import type { Database } from 'bun:sqlite';
+import type { CookieSecretRepository, CookieSecretState } from '@eos/domain/sessions/cookie-secret-repository';
 import { SqliteStatementTemplates } from '../sqlite/cookie-secret-statements';
 
 export class SqliteCookieSecretRepository implements CookieSecretRepository {
 	private readonly statementTemplates: SqliteStatementTemplates;
 
-	constructor(private readonly db: Database, table: string) {
+	constructor(
+		private readonly db: Database,
+		table: string,
+	) {
 		this.statementTemplates = new SqliteStatementTemplates(table);
 	}
 
 	async findById(id: string): Promise<CookieSecretState | null> {
 		const statement = this.db.prepare<PrimitiveCookieSecretState, [string]>(this.statementTemplates.findById);
 
-		const result = await statement.get(id)
+		const result = await statement.get(id);
 
-        return result ? CookieSecretStateSerde.deserialize(result) : null;
+		return result ? CookieSecretStateSerde.deserialize(result) : null;
 	}
 
 	async upsert(id: string, state: CookieSecretState): Promise<void> {
 		const statement = this.db.prepare<PrimitiveCookieSecretState, [string, string, number, number]>(this.statementTemplates.upsert);
 
-		const {value, createdAt,expiresAt} = CookieSecretStateSerde.serialize(state)
+		const { value, createdAt, expiresAt } = CookieSecretStateSerde.serialize(state);
 
 		await statement.run(id, value, createdAt, expiresAt);
 	}
@@ -44,7 +47,7 @@ export class SqliteCookieSecretRepository implements CookieSecretRepository {
 
 type PrimitiveCookieSecretState = {
 	[key in keyof CookieSecretState]: CookieSecretState[key] extends Date ? number : CookieSecretState[key];
-}
+};
 
 class CookieSecretStateSerde {
 	static serialize(state: CookieSecretState): PrimitiveCookieSecretState {

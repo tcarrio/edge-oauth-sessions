@@ -1,13 +1,6 @@
-import { FetchHttpClientConfig } from './fetch-config';
+import type { FetchHttpClientConfig } from './fetch-config';
 import { FetchResponseMapper } from './fetch-response-mapper';
-import {
-	HttpClient,
-	HttpHeaders,
-	HttpMethod,
-	HttpMethodType,
-	HttpOptions,
-	HttpResponse,
-} from './http-client';
+import { type HttpClient, HttpHeaders, HttpMethod, type HttpMethodType, type HttpOptions, type HttpResponse } from './http-client';
 
 export type BodylessHttpOptions = Omit<HttpOptions, 'body'>;
 
@@ -22,15 +15,15 @@ export class FetchHttpClient implements HttpClient {
 		return this.request(HttpMethod.GET, path, options);
 	}
 
-	async post<T>(path: string, data: any, options?: BodylessHttpOptions): Promise<HttpResponse<T>> {
+	async post<T>(path: string, data: unknown, options?: BodylessHttpOptions): Promise<HttpResponse<T>> {
 		return this.request(HttpMethod.POST, path, { ...options, body: data });
 	}
 
-	async patch<T>(path: string, data: any, options?: BodylessHttpOptions): Promise<HttpResponse<T>> {
+	async patch<T>(path: string, data: unknown, options?: BodylessHttpOptions): Promise<HttpResponse<T>> {
 		return this.request(HttpMethod.PATCH, path, { ...options, body: data });
 	}
 
-	async put<T>(path: string, data: any, options?: BodylessHttpOptions): Promise<HttpResponse<T>> {
+	async put<T>(path: string, data: unknown, options?: BodylessHttpOptions): Promise<HttpResponse<T>> {
 		return this.request(HttpMethod.PUT, path, { ...options, body: data });
 	}
 

@@ -1,5 +1,4 @@
-import * as z from 'zod';
-import {
+import type {
 	AuthorizationUrlOptions,
 	ExchangeCodeOptions,
 	OIDCScopeType,
@@ -7,10 +6,11 @@ import {
 	RefreshOptions,
 } from '@eos/domain/open-id-connect/client';
 import { OAuthCodeExchangeResponseSchema } from '@eos/domain/open-id-connect/code-exchange';
-import { BaseOIDCOptions, BaseOIDCOptionsSchema, EnvBaseOIDCOptionsSchema } from '@eos/domain/open-id-connect/types';
-import { ISessionState } from '@eos/domain/sessions/session-state';
-import { HttpClient, HttpOptions, ResponseFormat } from '../http/http-client';
+import { type BaseOIDCOptions, BaseOIDCOptionsSchema, EnvBaseOIDCOptionsSchema } from '@eos/domain/open-id-connect/types';
+import type { ISessionState } from '@eos/domain/sessions/session-state';
+import * as z from 'zod';
 import { mapperForMapping } from '../common/env-options-mapper';
+import { type HttpClient, type HttpOptions, ResponseFormat } from '../http/http-client';
 
 const RefreshResponseBodySchema = z.object({
 	access_token: z.string(),
@@ -21,7 +21,10 @@ const RefreshResponseBodySchema = z.object({
 export class GenericOIDCClient implements OpenIDConnectClient {
 	protected static readonly OIDC_SCOPES: OIDCScopeType[] = ['openid', 'profile', 'email'];
 
-	public constructor(protected readonly options: GenericOIDCOptions, protected readonly httpClient: HttpClient) {}
+	public constructor(
+		protected readonly options: GenericOIDCOptions,
+		protected readonly httpClient: HttpClient,
+	) {}
 
 	getAuthorizationUrl({ clientId, redirectUri, screenHint, ...options }: AuthorizationUrlOptions): string {
 		const url = new URL(`${this.options.issuerUrl}/authorization`);

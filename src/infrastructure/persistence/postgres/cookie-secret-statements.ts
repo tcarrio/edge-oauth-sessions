@@ -15,7 +15,7 @@ export class PostgresStatementTemplates {
 				${C.CreatedAt} timestamp NOT NULL,
 				${C.ExpiresAt} timestamp,
 				CONSTRAINT     ${this.table} PRIMARY KEY(${C.Id})
-			)`
+			)`;
 	}
 
 	get findById() {

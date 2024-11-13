@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { AuthorizationUrlOptions, AuthorizationUrlOptionsSchema } from './client';
+import { type AuthorizationUrlOptions, AuthorizationUrlOptionsSchema } from './client';
 
 export const BaseOIDCOptionsSchema = z.object({
 	clientId: z.string().min(1),

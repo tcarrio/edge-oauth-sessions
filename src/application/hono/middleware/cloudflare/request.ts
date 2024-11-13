@@ -2,7 +2,9 @@ import { any } from '@eos/domain/functional/array';
 
 export type WithBotManagementEnterprise<Req extends Request = Request> = Req & { cf: IncomingRequestCfPropertiesBotManagementEnterprise };
 export type WithGeographicInformation<Req extends Request = Request> = Req & { cf: IncomingRequestCfPropertiesGeographicInformation };
-export type WithCloudflareAccessOrApiShield<Req extends Request = Request> = Req & { cf: IncomingRequestCfPropertiesCloudflareAccessOrApiShield };
+export type WithCloudflareAccessOrApiShield<Req extends Request = Request> = Req & {
+	cf: IncomingRequestCfPropertiesCloudflareAccessOrApiShield;
+};
 
 export function requestIsBotManagementEnterprise<Req extends Request>(request: Req): request is WithBotManagementEnterprise<Req> {
 	return !!request.cf?.botManagement;

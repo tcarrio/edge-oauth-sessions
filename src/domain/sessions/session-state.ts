@@ -1,4 +1,4 @@
-import { decodeJwt, JWTPayload } from 'jose';
+import { type JWTPayload, decodeJwt } from 'jose';
 
 export interface ISessionState {
 	readonly accessToken: string;

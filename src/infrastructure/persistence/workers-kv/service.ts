@@ -5,4 +5,3 @@ export class KVService {
 		return this.namespace;
 	}
 }
-

@@ -1,6 +1,6 @@
-import { Context } from 'hono';
-import { StatefulHandler } from './handler';
 import { HttpStatusCodes } from '@eos/application/http/consts';
+import type { Context } from 'hono';
+import { StatefulHandler } from './handler';
 
 /**
  * Hands off the request to the fetch API, returning the Response for the next middleware to handle.
@@ -13,7 +13,7 @@ export class DynamicProxyHandler extends StatefulHandler {
 	async handle(ctx: Context): Promise<Response> {
 		const { hostname, port, protocol } = this.target;
 
-		let url = new URL(ctx.req.raw.url);
+		const url = new URL(ctx.req.raw.url);
 		const overrideHeaders: Record<string, string> = {};
 
 		if (hostname) {
@@ -29,7 +29,9 @@ export class DynamicProxyHandler extends StatefulHandler {
 			url.protocol = protocol;
 		}
 
-		Object.entries(overrideHeaders).forEach(([key, value]) => ctx.req.raw.headers.set(key, value))
+		for (const [key, value] of Object.entries(overrideHeaders)) {
+			ctx.req.raw.headers.set(key, value);
+		}
 
 		try {
 			console.log(`Proxying to ${url.toString()}`);
@@ -39,7 +41,9 @@ export class DynamicProxyHandler extends StatefulHandler {
 			console.error(err);
 		}
 
-		return new Response(null, { status: HttpStatusCodes.INTERNAL_SERVER_ERROR });
+		return new Response(null, {
+			status: HttpStatusCodes.INTERNAL_SERVER_ERROR,
+		});
 	}
 }
 

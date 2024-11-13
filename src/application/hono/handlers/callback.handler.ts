@@ -1,15 +1,17 @@
 import { HttpStatusCodes } from '@eos/application/http/consts';
-import { OpenIDConnectClient } from '@eos/domain/open-id-connect/client';
-import { OpenIDConnectConfig } from '@eos/domain/open-id-connect/config';
-import { IRequest } from 'itty-router';
+import type { OpenIDConnectClient } from '@eos/domain/open-id-connect/client';
+import type { OpenIDConnectConfig } from '@eos/domain/open-id-connect/config';
+import type { Context } from 'hono';
 import { StatefulHandler } from './handler';
-import { Context } from 'hono';
 
 /**
  * Handles logout actions by deleting the session from storage.
  */
 export class CallbackHandler extends StatefulHandler {
-	constructor(private readonly openIDConnectConfig: OpenIDConnectConfig, private readonly openIDConnectClient: OpenIDConnectClient) {
+	constructor(
+		private readonly openIDConnectConfig: OpenIDConnectConfig,
+		private readonly openIDConnectClient: OpenIDConnectClient,
+	) {
 		super();
 	}
 
@@ -40,7 +42,7 @@ export class CallbackHandler extends StatefulHandler {
 			});
 		} catch (err) {
 			// TODO: Handle errors
-			return ctx.redirect(/* error url */ '/error')
+			return ctx.redirect(/* error url */ '/error');
 		}
 	}
 }

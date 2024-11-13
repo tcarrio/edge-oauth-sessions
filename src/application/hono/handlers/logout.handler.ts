@@ -1,14 +1,17 @@
 import { HttpStatusCodes } from '@eos/application/http/consts';
-import { WithCookies } from '../types';
-import { AuthSessionManagerFactory } from '@eos/domain/sessions/auth-session-manager';
+import type { AuthSessionManagerFactory } from '@eos/domain/sessions/auth-session-manager';
+import type { RouterConfig } from '../../router/config';
+import type { WithCookies } from '../types';
 import { StatefulHandler } from './handler';
-import { RouterConfig } from '../../router/config';
 
 /**
  * Handles logout actions by deleting the session from storage.
  */
 export class LogoutHandler extends StatefulHandler {
-	constructor(private readonly authSessionManagerFactory: AuthSessionManagerFactory, private readonly sessionConfig: RouterConfig) {
+	constructor(
+		private readonly authSessionManagerFactory: AuthSessionManagerFactory,
+		private readonly sessionConfig: RouterConfig,
+	) {
 		super();
 	}
 

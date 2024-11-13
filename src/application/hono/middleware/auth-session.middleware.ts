@@ -1,7 +1,7 @@
-import { WithCookies } from '@eos/application/hono/types';
-import { AuthSessionManagerFactory } from '@eos/domain/sessions/auth-session-manager';
+import type { WithCookies } from '@eos/application/hono/types';
+import type { AuthSessionManagerFactory } from '@eos/domain/sessions/auth-session-manager';
+import type { Next } from 'hono';
 import { Middleware } from './middleware';
-import { Next } from 'hono';
 
 /**
  * Middleware that attaches the Authorization header to the request if the user is authenticated.

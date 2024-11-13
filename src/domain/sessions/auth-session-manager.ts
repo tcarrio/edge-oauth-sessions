@@ -1,7 +1,7 @@
-import { ISessionState } from './session-state';
+import type { ISessionState } from './session-state';
 
 export interface AuthSessionManager {
-	authenticate(sessionId: string): Promise<ISessionState | void>;
+	authenticate(sessionId: string): Promise<ISessionState | null>;
 	logout(sessionId: string): Promise<void>;
 }
 

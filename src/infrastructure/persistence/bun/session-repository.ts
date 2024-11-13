@@ -1,12 +1,15 @@
-import { Database } from 'bun:sqlite';
+import type { Database } from 'bun:sqlite';
+import type { SessionRepository } from '@eos/domain/sessions/session-repository';
+import type { ISessionState } from '@eos/domain/sessions/session-state';
 import { SqliteStatementTemplates } from '../sqlite/session-statements';
-import { SessionRepository } from '@eos/domain/sessions/session-repository';
-import { ISessionState } from '@eos/domain/sessions/session-state';
 
 export class SqliteSessionRepository implements SessionRepository {
 	private readonly statementTemplates: SqliteStatementTemplates;
 
-	constructor(private readonly db: Database, table: string) {
+	constructor(
+		private readonly db: Database,
+		table: string,
+	) {
 		this.statementTemplates = new SqliteStatementTemplates(table);
 	}
 
@@ -15,7 +18,9 @@ export class SqliteSessionRepository implements SessionRepository {
 	}
 
 	async upsert(id: string, { accessToken, refreshToken, idToken }: ISessionState): Promise<void> {
-		await this.db.prepare<ISessionState, [string, string, string, string|null]>(this.statementTemplates.upsert).run(id, accessToken, refreshToken, idToken ?? null);
+		await this.db
+			.prepare<ISessionState, [string, string, string, string | null]>(this.statementTemplates.upsert)
+			.run(id, accessToken, refreshToken, idToken ?? null);
 	}
 
 	async delete(id: string): Promise<void> {

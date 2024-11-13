@@ -14,13 +14,11 @@
             packages = with pkgs; [
                 # dev tools
                 git
-                moon
 
                 # node
                 nodejs_20
 
                 # iac
-								nodePackages.wrangler
                 opentofu
             ];
 

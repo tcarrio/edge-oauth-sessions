@@ -1,10 +1,10 @@
-import { EnumConstType } from "@eos/domain/open-id-connect/types";
+import type { EnumConstType } from '@eos/domain/open-id-connect/types';
 
 export interface HttpClient {
 	get<T>(path: string, options?: HttpOptions): Promise<HttpResponse<T>>;
-	post<T>(path: string, data: any, options?: HttpOptions): Promise<HttpResponse<T>>;
-	patch<T>(path: string, data: any, options?: HttpOptions): Promise<HttpResponse<T>>;
-	put<T>(path: string, data: any, options?: HttpOptions): Promise<HttpResponse<T>>;
+	post<T>(path: string, data: unknown, options?: HttpOptions): Promise<HttpResponse<T>>;
+	patch<T>(path: string, data: unknown, options?: HttpOptions): Promise<HttpResponse<T>>;
+	put<T>(path: string, data: unknown, options?: HttpOptions): Promise<HttpResponse<T>>;
 	delete<T>(path: string, options?: HttpOptions): Promise<HttpResponse<T>>;
 	request<T>(method: HttpMethodType, path: string, options?: HttpOptions): Promise<HttpResponse<T>>;
 }
@@ -22,7 +22,7 @@ export type HttpHeaders = Record<string, string>;
 
 export interface HttpOptions {
 	/** The body of the http request */
-	body?: any;
+	body?: unknown;
 	/** An object portraying the request's headers. */
 	headers?: HttpHeaders;
 	/** A number indicating whether request follows redirects and how many at a maximum to follow */
@@ -47,7 +47,7 @@ export interface HttpResponse<T> {
 	data(): Promise<T>;
 }
 
-export class HttpResponse<T> implements HttpResponse<T> {
+export class HttpResponseImpl<T> implements HttpResponse<T> {
 	public constructor(
 		public readonly ok: boolean,
 		public readonly status: number,

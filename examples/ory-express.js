@@ -2,40 +2,40 @@
 // and /callback routes to the baseURL
 app.use(
 	auth({
-	  authRequired: false,
-	  baseURL: "http://localhost:3000",
-	  secret: process.env.ENCRYPTION_SECRET || randomBytes(64).toString("hex"),
+		authRequired: false,
+		baseURL: 'http://localhost:3000',
+		secret: process.env.ENCRYPTION_SECRET || randomBytes(64).toString('hex'),
 
-	  clientID: process.env.OAUTH_CLIENT_ID,
-	  clientSecret: process.env.OAUTH_CLIENT_SECRET,
-	  issuerBaseURL: `https://${process.env.ORY_PROJECT_SLUG}.projects.oryapis.com`,
+		clientID: process.env.OAUTH_CLIENT_ID,
+		clientSecret: process.env.OAUTH_CLIENT_SECRET,
+		issuerBaseURL: `https://${process.env.ORY_PROJECT_SLUG}.projects.oryapis.com`,
 
-	  authorizationParams: {
-		response_type: "code",
-		scope: "openid email offline_access",
-	  },
+		authorizationParams: {
+			response_type: 'code',
+			scope: 'openid email offline_access',
+		},
 	}),
-  )
+);
 
-  // The / route will show the full oidc payload
-  app.get("/", requiresAuth(), (req, res) => {
+// The / route will show the full oidc payload
+app.get('/', requiresAuth(), (req, res) => {
 	req.oidc.fetchUserInfo().then((userInfo) => {
-	  res.send(
-		`<html lang='en'><body><pre><code>${JSON.stringify(
-		  {
-			accessToken: req.oidc.accessToken,
-			refreshToken: req.oidc.refreshToken,
-			idToken: req.oidc.idToken,
-			idTokenClaims: req.oidc.idTokenClaims,
-			userInfo,
-		  },
-		  null,
-		  2,
-		)}</code></pre></body></html>`,
-	  )
-	})
-  })
+		res.send(
+			`<html lang='en'><body><pre><code>${JSON.stringify(
+				{
+					accessToken: req.oidc.accessToken,
+					refreshToken: req.oidc.refreshToken,
+					idToken: req.oidc.idToken,
+					idTokenClaims: req.oidc.idTokenClaims,
+					userInfo,
+				},
+				null,
+				2,
+			)}</code></pre></body></html>`,
+		);
+	});
+});
 
-  app.listen(3000, function () {
-	console.log("Listening on http://localhost:3000")
-  })
+app.listen(3000, () => {
+	console.log('Listening on http://localhost:3000');
+});

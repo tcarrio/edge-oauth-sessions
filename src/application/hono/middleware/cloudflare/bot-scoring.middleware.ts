@@ -1,15 +1,15 @@
-import { IRequest } from "itty-router";
-import { requestIsBotManagementEnterprise } from "./request";
-import { Middleware } from "../middleware";
-import { Context, Next } from "hono";
+import type { Context, Next } from 'hono';
+import { IRequest } from 'itty-router';
+import { Middleware } from '../middleware';
+import { requestIsBotManagementEnterprise } from './request';
 
 /**
  * Middleware that adds the Cloudflare bot scoring headers to the request
  * when they are detected.
  */
 export class BotScoringMiddleware extends Middleware {
-	static readonly BOT_SCORE_HEADER = "Cf-Bot-Score";
-	static readonly VERIFIED_BOT_HEADER = "Cf-Verified-Bot";
+	static readonly BOT_SCORE_HEADER = 'Cf-Bot-Score';
+	static readonly VERIFIED_BOT_HEADER = 'Cf-Verified-Bot';
 
 	async handle(ctx: Context, next: Next): Promise<void> {
 		const rawRequest = ctx.req.raw;

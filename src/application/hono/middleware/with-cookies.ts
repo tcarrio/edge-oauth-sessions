@@ -1,7 +1,7 @@
+import { memoize } from '@eos/domain/functional/memoize';
+import type { Context, Next } from 'hono';
 import { getCookie } from 'hono/cookie';
 import { Middleware } from './middleware';
-import { Context, Next } from 'hono';
-import { memoize } from '@eos/domain/functional/memoize';
 
 /**
  * A middleware that injects cookies into the context variables
@@ -25,7 +25,7 @@ export class WithCookiesMiddleware extends Middleware {
 					get(target, prop) {
 						return getCookie(target, prop.toString());
 					},
-				})
+				}),
 			);
 		}
 
@@ -35,6 +35,6 @@ export class WithCookiesMiddleware extends Middleware {
 
 export type WithCookies<T> = T & {
 	var: {
-		cookies: Record<string, string|undefined>;
-	}
-}
+		cookies: Record<string, string | undefined>;
+	};
+};

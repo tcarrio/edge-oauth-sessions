@@ -1,4 +1,4 @@
 export interface Clock {
-    now(): number;
-    currentDate(): Date;
+	now(): number;
+	currentDate(): Date;
 }

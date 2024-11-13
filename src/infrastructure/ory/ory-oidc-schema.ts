@@ -1,11 +1,16 @@
-import { ExchangeCodeOptions, OpenIDConnectClient } from '@eos/domain/open-id-connect/client';
+import type { ExchangeCodeOptions, OpenIDConnectClient } from '@eos/domain/open-id-connect/client';
 import { OAuthCodeExchangeResponseSchema } from '@eos/domain/open-id-connect/code-exchange';
-import { ISessionState } from '@eos/domain/sessions/session-state';
+import type { ISessionState } from '@eos/domain/sessions/session-state';
 import { Configuration, OAuth2Api } from '@ory/client-fetch';
 import { z } from 'zod';
 import { mapperForMapping } from '../common/env-options-mapper';
-import { HttpClient } from '../http/http-client';
-import { EnvGenericOIDCOptionsSchema, GenericOIDCClient, GenericOIDCOptions, GenericOIDCOptionsSchema } from '../open-id-connect/generic-oidc-client';
+import type { HttpClient } from '../http/http-client';
+import {
+	EnvGenericOIDCOptionsSchema,
+	GenericOIDCClient,
+	type GenericOIDCOptions,
+	GenericOIDCOptionsSchema,
+} from '../open-id-connect/generic-oidc-client';
 
 export class OryOIDCClient extends GenericOIDCClient implements OpenIDConnectClient {
 	private readonly oAuth2Api: OAuth2Api;
@@ -16,7 +21,7 @@ export class OryOIDCClient extends GenericOIDCClient implements OpenIDConnectCli
 		this.oAuth2Api = new OAuth2Api(
 			new Configuration({
 				basePath: options.baseURL,
-			})
+			}),
 		);
 	}
 

@@ -1,4 +1,4 @@
-import { Context, Next } from 'hono';
+import type { Context, Next } from 'hono';
 
 export abstract class Gate implements IGate {
 	abstract handle(ctx: Context, next: Next): Promise<Response | void>;

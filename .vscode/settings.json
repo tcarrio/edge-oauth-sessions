@@ -1,6 +1,4 @@
 {
-    "nixEnvSelector.nixFile": "${workspaceRoot}/shell.nix",
-    "cSpell.words": [
-        "oidc"
-    ]
+	"nixEnvSelector.nixFile": "${workspaceRoot}/shell.nix",
+	"cSpell.words": ["oidc"]
 }

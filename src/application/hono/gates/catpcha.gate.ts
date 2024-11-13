@@ -1,6 +1,6 @@
 import { HttpStatusCodes } from '@eos/application/http/consts';
-import { Next } from 'hono';
-import { WithCookies } from '../types';
+import type { Next } from 'hono';
+import type { WithCookies } from '../types';
 import { Gate } from './gate';
 
 /**

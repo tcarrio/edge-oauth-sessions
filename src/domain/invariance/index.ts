@@ -1,4 +1,4 @@
-import { z } from "zod";
+import type { z } from 'zod';
 
 export function assert(condition: boolean, message: string): asserts condition is true {
 	if (!condition) {

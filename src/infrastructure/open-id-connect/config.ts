@@ -1,4 +1,4 @@
-import { OpenIDConnectConfig } from '@eos/domain/open-id-connect/config';
+import type { OpenIDConnectConfig } from '@eos/domain/open-id-connect/config';
 import z from 'zod';
 
 const EnvOpenIDConnectConfigSchema = z.object({
@@ -8,7 +8,7 @@ const EnvOpenIDConnectConfigSchema = z.object({
 });
 
 export class OpenIDConnectConfigFactory {
-	static forEnv(env: z.infer<typeof EnvOpenIDConnectConfigSchema>): OpenIDConnectConfig {
+	static forEnv(env: unknown): OpenIDConnectConfig {
 		const { OAUTH_REDIRECT_URI, OAUTH_CLIENT_ID, OAUTH_CLIENT_SECRET } = EnvOpenIDConnectConfigSchema.parse(env);
 
 		return {

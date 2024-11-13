@@ -7,8 +7,8 @@
  */
 
 import { z } from 'zod';
-import { ISessionState } from '../sessions/session-state';
-import { EnumConstType, enumValues } from './types';
+import type { ISessionState } from '../sessions/session-state';
+import { type EnumConstType, enumValues } from './types';
 
 export interface OpenIDConnectClient {
 	getAuthorizationUrl(options: Partial<AuthorizationUrlOptions>): string;
@@ -16,7 +16,7 @@ export interface OpenIDConnectClient {
 	refresh(options: RefreshOptions): Promise<ISessionState>;
 }
 
-export interface AuthorizationUrlOptions extends Record<string, any> {
+export interface AuthorizationUrlOptions extends Record<string, unknown> {
 	/**
 	 * REQUIRED. OpenID Connect requests MUST contain the openid scope value. If
 	 * the openid scope value is not present, the behavior is entirely
